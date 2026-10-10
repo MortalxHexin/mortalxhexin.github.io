@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小麻雀追袋記 · 感動的幸福</title>
+<meta name="description" content="一隻小麻雀追著被風吹走的紅白塑膠袋，穿過電鍋、珍奶、蚊香和藍白拖。十件台灣日常物件，每一件都變成了別的東西。">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#E9ECEC">
+<meta property="og:type" content="video.other">
+<meta property="og:site_name" content="感動的幸福">
+<meta property="og:title" content="小麻雀追袋記 · 每一幀都由代碼畫成">
+<meta property="og:description" content="一隻小麻雀追著被風吹走的紅白塑膠袋，穿過電鍋、珍奶、蚊香和藍白拖。十件台灣日常物件，每一件都變成了別的東西。">
+<meta property="og:url" content="https://gandongdexingfu.github.io/works/taiwan-sparrow/">
+<meta property="og:image" content="https://gandongdexingfu.github.io/media/taiwan-sparrow.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="../../">感動的幸福<span>gandongdexingfu</span></a>
+    <nav class="top"><a href="../../#works">作品</a><a href="../../#about">關於</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine">做法</a></nav>
+  </header>
+  <div class="crumb"><a href="../../">全部作品</a>　/　<a href="../../?style=照片塗鴉">照片塗鴉</a></div>
+
+  <section class="work">
+    <article class="plate" id="player" data-id="taiwan-sparrow"></article>
+    <div>
+      <h1>小麻雀追袋記</h1>
+      <div class="en">The Sparrow and the Bag</div>
+      <p class="lede">一隻小麻雀追著被風吹走的紅白塑膠袋，穿過電鍋、珍奶、蚊香和藍白拖。十件台灣日常物件，每一件都變成了別的東西。</p>
+      <ol class="chapters" aria-label="章節，點一下跳到那一段">
+<li><button type="button" data-t="0"><span>00:00.0</span><span>早餐盤</span></button></li>
+<li><button type="button" data-t="3.6"><span>00:03.6</span><span>電鍋</span></button></li>
+<li><button type="button" data-t="6.0"><span>00:06.0</span><span>蒸籠</span></button></li>
+<li><button type="button" data-t="8.4"><span>00:08.4</span><span>珍奶</span></button></li>
+<li><button type="button" data-t="11.4"><span>00:11.4</span><span>蚊香</span></button></li>
+<li><button type="button" data-t="13.2"><span>00:13.2</span><span>塑膠凳</span></button></li>
+<li><button type="button" data-t="15.0"><span>00:15.0</span><span>藍白拖</span></button></li>
+<li><button type="button" data-t="18.6"><span>00:18.6</span><span>安靜</span></button></li>
+<li><button type="button" data-t="19.4"><span>00:19.4</span><span>電扇</span></button></li>
+<li><button type="button" data-t="21.6"><span>00:21.6</span><span>彈珠台</span></button></li>
+<li><button type="button" data-t="24.0"><span>00:24.0</span><span>安靜</span></button></li>
+<li><button type="button" data-t="24.8"><span>00:24.8</span><span>紅白袋</span></button></li>
+<li><button type="button" data-t="27.2"><span>00:27.2</span><span>台灣生活圖鑑</span></button></li>
+      </ol>
+      <dl class="spec"><dt>類型</dt><dd>照片塗鴉片</dd><dt>長度</dt><dd>33 秒</dd><dt>規格</dt><dd>1080 × 1920 · 24 fps</dd><dt>照片</dt><dd>ChatGPT 生成，10 件</dd><dt>畫面</dt><dd>canvas 代碼手繪</dd><dt>配樂</dt><dd>原創樂譜，CC0 樂器取樣演奏</dd></dl>
+      <div class="links"><a href="https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/routes/照片塗鴉片.md">做法與踩過的坑</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/taiwan-sparrow">全部原始碼</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/releases/tag/taiwan-sparrow-v1">素材與原檔下載</a></div>
+    </div>
+  </section>
+
+  <section class="bts" aria-labelledby="bts-h">
+    <h2 id="bts-h">代碼 → 畫面</h2>
+    <p>這支片裡的三個畫面，和畫出它們的那幾行代碼。</p>
+<article class="pair">
+  <div class="code"><div class="head"><span>Fig 1.2.1</span><span>doodle.js・節錄整理</span></div>
+    <h3>會抖的墨線</h3><p class="note">每一筆都沿著線條的法線推一點雜訊，每秒換 12 次，線條就像手繪一樣微微顫動。p 從 0 走到 1，就是一筆一筆畫出來。</p>
+    <pre><code><span class="cm">// 沿著線條的法線方向推一點點雜訊，像手在抖</span>
+const r = pts.map((p, i) =&gt; {
+  const [nx, ny] = normal(pts, i);
+  const o = noise(i * .09, seed + boil) * wob
+          + noise(i * .5,  seed + boil + 3) * wob * .35;
+  return [p[0] + nx * o, p[1] + ny * o];
+});
+<span class="cm">// boil = Math.floor(t * 12)：每秒換 12 次種子，線條會「呼吸」</span>
+<span class="cm">// p：畫到哪裡為止，0 → 1 就是一筆一筆畫出來</span>
+drawPolyline(r.slice(0, r.length * p));</code></pre></div>
+  <figure><img src="../../media/bts/sp-sheet.webp" alt="會抖的墨線的畫面" loading="lazy" decoding="async"></figure>
+</article>
+<article class="pair">
+  <div class="code"><div class="head"><span>Fig 1.2.2</span><span>film.js・節錄整理</span></div>
+    <h3>真的會轉的電扇</h3><p class="note">先請 AI 把照片裡的扇葉去掉，兩張相減得到扇葉層。每一幀把扇葉沿著電扇的透視角度旋轉，再疊十幾張做動態模糊，最後把鋼絲和輪轂蓋回最上面。</p>
+    <pre><code>const span = Math.min(Math.PI / 2, speed / 24 * .9);  <span class="cm">// 轉越快，模糊越長</span>
+for (let j = 0; j &lt; 14; j++) {
+  b.globalAlpha = 1 / (j + 1);                         <span class="cm">// 十四張平均</span>
+  b.setTransform(1, 0, 0, 1, 0, 0);
+  b.translate(cx, cy);
+  b.scale(.72, 1);                                     <span class="cm">// 先把透視的橢圓拉成圓</span>
+  b.rotate(angle - span * j / 14);                     <span class="cm">// 轉</span>
+  b.scale(1 / .72, 1);                                 <span class="cm">// 再壓回透視</span>
+  b.translate(-cx, -cy);
+  b.drawImage(blades, 0, 0);
+}
+g.drawImage(fanWithoutBlades, 0, 0);                   <span class="cm">// 底圖：沒有扇葉的電扇</span>
+g.drawImage(spinning, 0, 0);
+g.drawImage(cageAndHub, 0, 0);                         <span class="cm">// 鋼絲與輪轂在最前面</span></code></pre></div>
+  <figure><img src="../../media/bts/sp-fan.webp" alt="真的會轉的電扇的畫面" loading="lazy" decoding="async"><button type="button" data-t="19.4">看片中這一段</button></figure>
+</article>
+<article class="pair">
+  <div class="code"><div class="head"><span>Fig 1.2.3</span><span>film.js・節錄整理</span></div>
+    <h3>把蚊香點著</h3><p class="note">沿著螺旋算出麻雀滑過的路徑，走過的地方畫成發光的引信，再從引信上冒出煙。畫面同時跟著螺旋轉一點角度，製造暈眩感。</p>
+    <pre><code>function spiral(k) {                    <span class="cm">// k：0 在中心，1 在尾端</span>
+  const th = lerp(.96 - 5 * Math.PI, .96, k);
+  const r  = lerp(40, 420, k);
+  return [cx + r * Math.cos(th), cy + r * .62 * Math.sin(th)];
+}
+const burnt = range(0, 160 * k).map(i =&gt; spiral(i / 160));
+stroke(burnt, &#x27;#ff9a3c&#x27;, 38, .4);       <span class="cm">// 外層光暈</span>
+stroke(burnt, &#x27;#ff6a1f&#x27;, 10, .95);      <span class="cm">// 引信本體</span>
+burnt.filter((_, i) =&gt; i % 23 === 0)
+     .forEach(p =&gt; smoke(p, t));        <span class="cm">// 冒煙</span>
+camera.rotate(-.3 * Math.sin(Math.PI * progress));</code></pre></div>
+  <figure><img src="../../media/bts/sp-coil.webp" alt="把蚊香點著的畫面" loading="lazy" decoding="async"><button type="button" data-t="11.6">看片中這一段</button></figure>
+</article>
+  </section>
+
+  <nav class="next"><span></span><a href="../light-evolution/">下一支　光的演變</a></nav>
+  <footer id="about">
+    <span>照片由 AI 生成；畫面、音效與配樂由代碼生成。</span>
+    <span>© 2026 gandongdexingfu</span>
+  </footer>
+</div>
+<script src="../../assets/site.js"></script>
+<script>
+SITE.load('../../').then(([WORKS, FP]) => {
+  const host = document.getElementById('player'), w = WORKS.find(x => x.id === host.dataset.id);
+  host.innerHTML = SITE.plateHTML(w, '../../', { link: false });
+  const items = [...document.querySelectorAll('.chapters li')];
+  const film = SITE.mount(host, w, FP[w.id], { eager: true, onChapter: i => items.forEach((li, j) => li.classList.toggle('on', i === j)) });
+  const jump = (t, play) => { film.seek(+t); if (play) film.play(); };
+  document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
+  document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); jump(b.dataset.t, true); }));
+});
+</script>
+</body>
+</html>

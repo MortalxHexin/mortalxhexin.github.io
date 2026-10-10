@@ -1,0 +1,242 @@
+[
+ {
+  "id": "taiwan-sparrow",
+  "fig": "Fig 1.2",
+  "style": "照片塗鴉",
+  "date": "2026.10",
+  "title": "小麻雀追袋記",
+  "en": "The Sparrow and the Bag",
+  "blurb": "一隻小麻雀追著被風吹走的紅白塑膠袋，穿過電鍋、珍奶、蚊香和藍白拖。十件台灣日常物件，每一件都變成了別的東西。",
+  "spec": [
+   [
+    "類型",
+    "照片塗鴉片"
+   ],
+   [
+    "長度",
+    "33 秒"
+   ],
+   [
+    "規格",
+    "1080 × 1920 · 24 fps"
+   ],
+   [
+    "照片",
+    "ChatGPT 生成，10 件"
+   ],
+   [
+    "畫面",
+    "canvas 代碼手繪"
+   ],
+   [
+    "配樂",
+    "原創樂譜，CC0 樂器取樣演奏"
+   ]
+  ],
+  "chapters": [
+   [
+    0,
+    "早餐盤"
+   ],
+   [
+    3.6,
+    "電鍋"
+   ],
+   [
+    6.0,
+    "蒸籠"
+   ],
+   [
+    8.4,
+    "珍奶"
+   ],
+   [
+    11.4,
+    "蚊香"
+   ],
+   [
+    13.2,
+    "塑膠凳"
+   ],
+   [
+    15.0,
+    "藍白拖"
+   ],
+   [
+    18.6,
+    "安靜"
+   ],
+   [
+    19.4,
+    "電扇"
+   ],
+   [
+    21.6,
+    "彈珠台"
+   ],
+   [
+    24.0,
+    "安靜"
+   ],
+   [
+    24.8,
+    "紅白袋"
+   ],
+   [
+    27.2,
+    "台灣生活圖鑑"
+   ]
+  ],
+  "how": "https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/routes/照片塗鴉片.md",
+  "code": "https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/taiwan-sparrow",
+  "release": "https://github.com/gandongdexingfu/lemo-opuscar/releases/tag/taiwan-sparrow-v1",
+  "bts": [
+   {
+    "title": "會抖的墨線",
+    "img": "sp-sheet",
+    "at": null,
+    "note": "每一筆都沿著線條的法線推一點雜訊，每秒換 12 次，線條就像手繪一樣微微顫動。p 從 0 走到 1，就是一筆一筆畫出來。",
+    "file": "doodle.js",
+    "code": "// 沿著線條的法線方向推一點點雜訊，像手在抖\nconst r = pts.map((p, i) => {\n  const [nx, ny] = normal(pts, i);\n  const o = noise(i * .09, seed + boil) * wob\n          + noise(i * .5,  seed + boil + 3) * wob * .35;\n  return [p[0] + nx * o, p[1] + ny * o];\n});\n// boil = Math.floor(t * 12)：每秒換 12 次種子，線條會「呼吸」\n// p：畫到哪裡為止，0 → 1 就是一筆一筆畫出來\ndrawPolyline(r.slice(0, r.length * p));"
+   },
+   {
+    "title": "真的會轉的電扇",
+    "img": "sp-fan",
+    "at": 19.4,
+    "note": "先請 AI 把照片裡的扇葉去掉，兩張相減得到扇葉層。每一幀把扇葉沿著電扇的透視角度旋轉，再疊十幾張做動態模糊，最後把鋼絲和輪轂蓋回最上面。",
+    "file": "film.js",
+    "code": "const span = Math.min(Math.PI / 2, speed / 24 * .9);  // 轉越快，模糊越長\nfor (let j = 0; j < 14; j++) {\n  b.globalAlpha = 1 / (j + 1);                         // 十四張平均\n  b.setTransform(1, 0, 0, 1, 0, 0);\n  b.translate(cx, cy);\n  b.scale(.72, 1);                                     // 先把透視的橢圓拉成圓\n  b.rotate(angle - span * j / 14);                     // 轉\n  b.scale(1 / .72, 1);                                 // 再壓回透視\n  b.translate(-cx, -cy);\n  b.drawImage(blades, 0, 0);\n}\ng.drawImage(fanWithoutBlades, 0, 0);                   // 底圖：沒有扇葉的電扇\ng.drawImage(spinning, 0, 0);\ng.drawImage(cageAndHub, 0, 0);                         // 鋼絲與輪轂在最前面"
+   },
+   {
+    "title": "把蚊香點著",
+    "img": "sp-coil",
+    "at": 11.6,
+    "note": "沿著螺旋算出麻雀滑過的路徑，走過的地方畫成發光的引信，再從引信上冒出煙。畫面同時跟著螺旋轉一點角度，製造暈眩感。",
+    "file": "film.js",
+    "code": "function spiral(k) {                    // k：0 在中心，1 在尾端\n  const th = lerp(.96 - 5 * Math.PI, .96, k);\n  const r  = lerp(40, 420, k);\n  return [cx + r * Math.cos(th), cy + r * .62 * Math.sin(th)];\n}\nconst burnt = range(0, 160 * k).map(i => spiral(i / 160));\nstroke(burnt, '#ff9a3c', 38, .4);       // 外層光暈\nstroke(burnt, '#ff6a1f', 10, .95);      // 引信本體\nburnt.filter((_, i) => i % 23 === 0)\n     .forEach(p => smoke(p, t));        // 冒煙\ncamera.rotate(-.3 * Math.sin(Math.PI * progress));"
+   }
+  ]
+ },
+ {
+  "id": "light-evolution",
+  "fig": "Fig 1.1",
+  "style": "寫實演變",
+  "date": "2026.10",
+  "title": "光的演變",
+  "en": "Evolution of Light",
+  "blurb": "從一堆火到一盞智慧燈，十一個時代的光在同一面牆前依序點亮，最後縮成地球上的城市燈火。",
+  "spec": [
+   [
+    "類型",
+    "寫實照片演變片"
+   ],
+   [
+    "長度",
+    "91.6 秒"
+   ],
+   [
+    "規格",
+    "1080 × 1920 · 30 fps"
+   ],
+   [
+    "照片",
+    "ChatGPT 生成，25 張"
+   ],
+   [
+    "畫面",
+    "代碼合成、點燈與運鏡"
+   ],
+   [
+    "配樂",
+    "Gemini 生成"
+   ]
+  ],
+  "chapters": [
+   [
+    0,
+    "序幕 火柴"
+   ],
+   [
+    3.0,
+    "火"
+   ],
+   [
+    9.5,
+    "陶土油燈"
+   ],
+   [
+    16.0,
+    "蜂蠟蠟燭"
+   ],
+   [
+    22.5,
+    "阿岡燈"
+   ],
+   [
+    29.0,
+    "煤氣燈"
+   ],
+   [
+    35.5,
+    "彩蛋 火柴"
+   ],
+   [
+    38.7,
+    "煤油燈"
+   ],
+   [
+    45.2,
+    "白熾燈泡"
+   ],
+   [
+    51.7,
+    "霓虹燈"
+   ],
+   [
+    58.2,
+    "日光燈"
+   ],
+   [
+    64.7,
+    "白光 LED"
+   ],
+   [
+    71.2,
+    "智慧照明"
+   ],
+   [
+    77.7,
+    "地球"
+   ]
+  ],
+  "how": "https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/routes/寫實照片演變片.md",
+  "code": "https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/light-evolution",
+  "release": "https://github.com/gandongdexingfu/lemo-opuscar/releases/tag/light-evolution-v1",
+  "bts": [
+   {
+    "title": "點燈的光暈",
+    "img": "le-glow",
+    "at": 38.7,
+    "note": "每一代都有一張點燈、一張熄燈的照片。點燈時把兩張按亮度混合，再在光源處疊三層「加亮」的徑向漸層：核心、光暈、環境光。",
+    "file": "scene.js",
+    "code": "function glow(x, y, k, col) {\n  ctx.globalCompositeOperation = 'lighter';     // 光是「加」上去的\n  for (const [r, a] of [[90, .5], [260, .2], [620, .09]]) {\n    // 三層：核心、光暈、環境光\n    const g = ctx.createRadialGradient(x, y, 0, x, y, r);\n    g.addColorStop(0, `rgba(${col}, ${a * k})`);\n    g.addColorStop(1, 'rgba(0, 0, 0, 0)');\n    ctx.fillStyle = g;\n    ctx.fillRect(x - r, y - r, 2 * r, 2 * r);\n  }\n}"
+   },
+   {
+    "title": "搖曳的火焰",
+    "img": "le-flame",
+    "at": 0,
+    "note": "照片裡的火焰是靜止的。把它切成 3 像素高的橫條，每一條左右偏移，越靠近火尖擺得越大，靜止的照片就燒了起來。",
+    "file": "scene.js",
+    "code": "// 火焰切成 3 px 高的橫條，越靠近火尖擺得越大\nconst sway = y => {\n  const h   = (base - y) / (base - top);   // 0 在底部，1 在火尖\n  const amp = 26 * Math.pow(h, 1.6);\n  return amp * (.6 * Math.sin(t * 5.1 + y * .012)\n              + .4 * Math.sin(t * 8.7 + 1.3 + y * .02));\n};\nfor (let y = top; y < bottom; y += 3)\n  fg.drawImage(flame, 0, y, w, 3,         // 取一條\n               x + sway(y), y, w, 3);     // 偏移後放回去"
+   },
+   {
+    "title": "縮成地球",
+    "img": "le-earth",
+    "at": 77.7,
+    "note": "最後一盞燈先收成一個柔邊光點，再落到台灣的位置。地球照片從 16 倍放大拉回 1 倍，放得越大越模糊，避免看到像素。",
+    "file": "scene.js",
+    "code": "const q = smooth((t - t0) / 4.5);             // 4.5 秒拉遠\nconst E = Math.pow(16, 1 - q);               // 放大 16 倍 → 1 倍\nctx.filter = `blur(${Math.max(0, (E - 2) * 1.6)}px)`;\nctx.drawImage(earth, A[0] - TW[0] * E, A[1] - TW[1] * E,\n              w * E, h * E);\nctx.filter = 'none';\n// 最後一代的畫面用柔邊遮罩收成光點\nfeather(lampFrame, 1 - E / 16);"
+   }
+  ]
+ }
+]
