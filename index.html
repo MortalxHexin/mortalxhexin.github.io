@@ -126,21 +126,10 @@ SITE.load('').then(([WORKS, FP]) => {
     const a = document.createElement('a'); a.className = 'card reveal'; a.dataset.tilt = '6'; a.href = `works/${w.id}/`; a.dataset.style = w.style; a.style.setProperty('--d', i * 90 + 'ms');
     a.innerHTML = `
       <div class="card-head"><span>${w.fig}</span><span><span class="style-tag">${SITE.esc(w.style)}</span>　${w.date}</span></div>
-      <div class="card-stage"><img src="media/${w.id}.webp" alt="${SITE.esc(w.title)}的畫面" loading="lazy" decoding="async"><video muted playsinline preload="none"></video><span class="scrub"></span></div>
+      <div class="card-stage"><img src="media/${w.id}.webp" alt="${SITE.esc(w.title)}的畫面" loading="lazy" decoding="async"></div>
       <div class="card-body"><h3>${SITE.esc(w.title)}</h3><div class="en">${SITE.esc(w.en)}</div><p>${SITE.esc(w.blurb)}</p></div>
       <div class="card-go"><span>看這支片</span><span class="meta">${D.toFixed(0)} 秒 · ${n} 段</span><span class="arrow" aria-hidden="true">→</span></div>`;
     grid.appendChild(a); watch(a);
-    // 滑過畫面＝無聲預覽：游標在哪，片子就在哪；離開就回到封面
-    const stage = a.querySelector('.card-stage'), v = stage.querySelector('video'), bar2 = stage.querySelector('.scrub');
-    stage.addEventListener('pointermove', e => {
-      if (e.pointerType !== 'mouse') return;
-      const r = stage.getBoundingClientRect(), f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-      bar2.style.transform = `scaleX(${f})`; stage.classList.add('live');
-      if (!v.src) v.src = `media/${w.id}.mp4`;
-      const go = () => { v.currentTime = f * (D - .05); };
-      if (v.readyState >= 1) go(); else v.addEventListener('loadedmetadata', go, { once: true });
-    });
-    stage.addEventListener('pointerleave', () => { stage.classList.remove('live'); bar2.style.transform = 'scaleX(0)'; });
   });
   const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
 });

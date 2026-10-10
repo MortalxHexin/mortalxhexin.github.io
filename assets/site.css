@@ -207,13 +207,10 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .card[hidden] { display: none; }
 .card:hover { box-shadow: 0 0 0 1px var(--signal), 0 18px 40px -24px rgba(20, 30, 60, .35); }
 .card-head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
-.card-stage { position: relative; margin: 16px auto 0; width: min(100%, 280px); aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); cursor: ew-resize; }
-.card-stage img, .card-stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.card-stage video { opacity: 0; transition: opacity .25s; }
-.card-stage.live video { opacity: 1; }
+.card-stage { position: relative; margin: 16px auto 0; width: min(100%, 280px); aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); cursor: pointer; }
+.card-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .card-stage img { transition: transform 1.2s var(--ease); }
 .card:hover .card-stage img { transform: scale(1.025); }
-.scrub { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--signal); transform: scaleX(0); transform-origin: left; }
 .card-body { margin-top: 20px; }
 .card-body h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 24px; margin: 0; letter-spacing: .02em; }
 .card-body .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
@@ -269,11 +266,13 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .play.mini:hover { color: var(--signal); box-shadow: inset 0 0 0 1.5px var(--signal); }
 .play.mini:active { transform: scale(.94); }
 
-/* 影片正中央的大播放鍵：細線圓圈，底下一層霧面 */
-.big-play { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: #fff;
-  background: rgba(16, 20, 24, .32); box-shadow: inset 0 0 0 1.25px rgba(255, 255, 255, .85); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  transition: opacity .4s var(--ease), transform .4s var(--ease), box-shadow .3s, color .3s; }
+/* 影片正中央的大播放鍵：細線圓圈＋霧面，下面一行小字「有聲」；播放中隱藏，點畫面暫停後回來 */
+.big-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 0; border: 0; background: none; cursor: pointer; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: opacity .4s var(--ease); }
+.big-play .ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(16, 20, 24, .32); box-shadow: inset 0 0 0 1.25px rgba(255, 255, 255, .85); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: transform .4s var(--ease), box-shadow .3s, background .3s; }
 .big-play svg { width: 18px; height: 18px; fill: currentColor; margin-left: 3px; }
-.big-play:hover { transform: scale(1.06); box-shadow: inset 0 0 0 1.5px var(--signal); color: #fff; background: rgba(47, 91, 255, .35); }
-.big-play.gone { opacity: 0; transform: scale(.9); pointer-events: none; }
+.big-play .sound { font-size: 11.5px; letter-spacing: .08em; padding: 2px 9px; border-radius: 999px; background: rgba(16, 20, 24, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.big-play:hover .ring { transform: scale(1.06); box-shadow: inset 0 0 0 1.5px var(--signal); background: rgba(47, 91, 255, .35); }
+.stage.playing .big-play { opacity: 0; pointer-events: none; }
+.stage.playing { cursor: pointer; }
 .stage.scrubbing .big-play:not(:hover) { opacity: .35; }
+.work .readout { margin-bottom: 2px; }
