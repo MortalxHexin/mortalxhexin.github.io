@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>光的演變 · 感動的幸福</title>
+<meta name="description" content="從一堆火到一盞智慧燈，十一個時代的光在同一面牆前依序點亮，最後縮成地球上的城市燈火。">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#E9ECEC">
+<meta property="og:type" content="video.other">
+<meta property="og:site_name" content="感動的幸福">
+<meta property="og:title" content="光的演變 · 每一幀都由代碼畫成">
+<meta property="og:description" content="從一堆火到一盞智慧燈，十一個時代的光在同一面牆前依序點亮，最後縮成地球上的城市燈火。">
+<meta property="og:url" content="https://gandongdexingfu.github.io/works/light-evolution/">
+<meta property="og:image" content="https://gandongdexingfu.github.io/media/light-evolution.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="../../">感動的幸福<span>gandongdexingfu</span></a>
+    <nav class="top"><a href="../../#works">作品</a><a href="../../#about">關於</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine">做法</a></nav>
+  </header>
+  <div class="crumb"><a href="../../">全部作品</a>　/　<a href="../../?style=寫實演變">寫實演變</a></div>
+
+  <section class="work">
+    <article class="plate" id="player" data-id="light-evolution"></article>
+    <div>
+      <h1>光的演變</h1>
+      <div class="en">Evolution of Light</div>
+      <p class="lede">從一堆火到一盞智慧燈，十一個時代的光在同一面牆前依序點亮，最後縮成地球上的城市燈火。</p>
+      <ol class="chapters" aria-label="章節，點一下跳到那一段">
+<li><button type="button" data-t="0"><span>00:00.0</span><span>序幕 火柴</span></button></li>
+<li><button type="button" data-t="3.0"><span>00:03.0</span><span>火</span></button></li>
+<li><button type="button" data-t="9.5"><span>00:09.5</span><span>陶土油燈</span></button></li>
+<li><button type="button" data-t="16.0"><span>00:16.0</span><span>蜂蠟蠟燭</span></button></li>
+<li><button type="button" data-t="22.5"><span>00:22.5</span><span>阿岡燈</span></button></li>
+<li><button type="button" data-t="29.0"><span>00:29.0</span><span>煤氣燈</span></button></li>
+<li><button type="button" data-t="35.5"><span>00:35.5</span><span>彩蛋 火柴</span></button></li>
+<li><button type="button" data-t="38.7"><span>00:38.7</span><span>煤油燈</span></button></li>
+<li><button type="button" data-t="45.2"><span>00:45.2</span><span>白熾燈泡</span></button></li>
+<li><button type="button" data-t="51.7"><span>00:51.7</span><span>霓虹燈</span></button></li>
+<li><button type="button" data-t="58.2"><span>00:58.2</span><span>日光燈</span></button></li>
+<li><button type="button" data-t="64.7"><span>01:04.7</span><span>白光 LED</span></button></li>
+<li><button type="button" data-t="71.2"><span>01:11.2</span><span>智慧照明</span></button></li>
+<li><button type="button" data-t="77.7"><span>01:17.7</span><span>地球</span></button></li>
+      </ol>
+      <dl class="spec"><dt>類型</dt><dd>寫實照片演變片</dd><dt>長度</dt><dd>91.6 秒</dd><dt>規格</dt><dd>1080 × 1920 · 30 fps</dd><dt>照片</dt><dd>ChatGPT 生成，25 張</dd><dt>畫面</dt><dd>代碼合成、點燈與運鏡</dd><dt>配樂</dt><dd>Gemini 生成</dd></dl>
+      <div class="links"><a href="https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/routes/寫實照片演變片.md">做法與踩過的坑</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine/films/light-evolution">全部原始碼</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/releases/tag/light-evolution-v1">素材與原檔下載</a></div>
+    </div>
+  </section>
+
+  <section class="bts" aria-labelledby="bts-h">
+    <h2 id="bts-h">代碼 → 畫面</h2>
+    <p>這支片裡的三個畫面，和畫出它們的那幾行代碼。</p>
+<article class="pair">
+  <div class="code"><div class="head"><span>Fig 1.1.1</span><span>scene.js・節錄整理</span></div>
+    <h3>點燈的光暈</h3><p class="note">每一代都有一張點燈、一張熄燈的照片。點燈時把兩張按亮度混合，再在光源處疊三層「加亮」的徑向漸層：核心、光暈、環境光。</p>
+    <pre><code>function glow(x, y, k, col) {
+  ctx.globalCompositeOperation = &#x27;lighter&#x27;;     <span class="cm">// 光是「加」上去的</span>
+  for (const [r, a] of [[90, .5], [260, .2], [620, .09]]) {
+    <span class="cm">// 三層：核心、光暈、環境光</span>
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${col}, ${a * k})`);
+    g.addColorStop(1, &#x27;rgba(0, 0, 0, 0)&#x27;);
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, 2 * r, 2 * r);
+  }
+}</code></pre></div>
+  <figure><img src="../../media/bts/le-glow.webp" alt="點燈的光暈的畫面" loading="lazy" decoding="async"><button type="button" data-t="38.7">看片中這一段</button></figure>
+</article>
+<article class="pair">
+  <div class="code"><div class="head"><span>Fig 1.1.2</span><span>scene.js・節錄整理</span></div>
+    <h3>搖曳的火焰</h3><p class="note">照片裡的火焰是靜止的。把它切成 3 像素高的橫條，每一條左右偏移，越靠近火尖擺得越大，靜止的照片就燒了起來。</p>
+    <pre><code><span class="cm">// 火焰切成 3 px 高的橫條，越靠近火尖擺得越大</span>
+const sway = y =&gt; {
+  const h   = (base - y) / (base - top);   <span class="cm">// 0 在底部，1 在火尖</span>
+  const amp = 26 * Math.pow(h, 1.6);
+  return amp * (.6 * Math.sin(t * 5.1 + y * .012)
+              + .4 * Math.sin(t * 8.7 + 1.3 + y * .02));
+};
+for (let y = top; y &lt; bottom; y += 3)
+  fg.drawImage(flame, 0, y, w, 3,         <span class="cm">// 取一條</span>
+               x + sway(y), y, w, 3);     <span class="cm">// 偏移後放回去</span></code></pre></div>
+  <figure><img src="../../media/bts/le-flame.webp" alt="搖曳的火焰的畫面" loading="lazy" decoding="async"><button type="button" data-t="0">看片中這一段</button></figure>
+</article>
+<article class="pair">
+  <div class="code"><div class="head"><span>Fig 1.1.3</span><span>scene.js・節錄整理</span></div>
+    <h3>縮成地球</h3><p class="note">最後一盞燈先收成一個柔邊光點，再落到台灣的位置。地球照片從 16 倍放大拉回 1 倍，放得越大越模糊，避免看到像素。</p>
+    <pre><code>const q = smooth((t - t0) / 4.5);             <span class="cm">// 4.5 秒拉遠</span>
+const E = Math.pow(16, 1 - q);               <span class="cm">// 放大 16 倍 → 1 倍</span>
+ctx.filter = `blur(${Math.max(0, (E - 2) * 1.6)}px)`;
+ctx.drawImage(earth, A[0] - TW[0] * E, A[1] - TW[1] * E,
+              w * E, h * E);
+ctx.filter = &#x27;none&#x27;;
+<span class="cm">// 最後一代的畫面用柔邊遮罩收成光點</span>
+feather(lampFrame, 1 - E / 16);</code></pre></div>
+  <figure><img src="../../media/bts/le-earth.webp" alt="縮成地球的畫面" loading="lazy" decoding="async"><button type="button" data-t="77.7">看片中這一段</button></figure>
+</article>
+  </section>
+
+  <nav class="next"><a href="../taiwan-sparrow/">上一支　小麻雀追袋記</a><a href="../../">回到全部作品</a></nav>
+  <footer id="about">
+    <span>照片由 AI 生成；畫面、音效與配樂由代碼生成。</span>
+    <span>© 2026 gandongdexingfu</span>
+  </footer>
+</div>
+<script src="../../assets/site.js"></script>
+<script>
+SITE.load('../../').then(([WORKS, FP]) => {
+  const host = document.getElementById('player'), w = WORKS.find(x => x.id === host.dataset.id);
+  host.innerHTML = SITE.plateHTML(w, '../../', { link: false });
+  const items = [...document.querySelectorAll('.chapters li')];
+  const film = SITE.mount(host, w, FP[w.id], { eager: true, onChapter: i => items.forEach((li, j) => li.classList.toggle('on', i === j)) });
+  const jump = (t, play) => { film.seek(+t); if (play) film.play(); };
+  document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
+  document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); jump(b.dataset.t, true); }));
+});
+</script>
+</body>
+</html>
