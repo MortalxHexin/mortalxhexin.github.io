@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.p{fill:#F7F8F8;stroke:#C3CACE}.w{stroke:#1D2125}.h{stroke:#2F5BFF}
+  @media (prefers-color-scheme: dark){.p{fill:#1C2126;stroke:#3A434A}.w{stroke:#E6EAEC}.h{stroke:#7C98FF}}</style>
+  <rect class="p" x="1.5" y="1.5" width="29" height="29" rx="7" stroke-width="1"/>
+  <g class="w" stroke-width="1.6" stroke-linecap="round">
+    <path d="M7 14v4M10 11v10M13 13v6M16 9v14M19 12v8M22 14v4M25 12v8"/>
+  </g>
+  <path class="h" d="M17.5 6v20" stroke-width="1.6" stroke-linecap="round"/>
+</svg>
