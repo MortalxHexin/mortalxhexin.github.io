@@ -41,6 +41,14 @@ const SITE = (() => {
       if (video.paused) { video.muted = false; video.play(); } else { video.pause(); video.muted = true; }
     });
     video.addEventListener('play', label); video.addEventListener('pause', label);
+    // 畫面正中央的大播放鍵：一打開就看得到，按了就播，播放中隱藏
+    const big = el.querySelector('.big-play');
+    if (big) {
+      big.addEventListener('pointerdown', e => e.stopPropagation());
+      big.addEventListener('click', e => { e.stopPropagation(); btn.click(); });
+      const vis = () => big.classList.toggle('gone', !video.paused);
+      video.addEventListener('play', vis); video.addEventListener('pause', vis);
+    }
     video.addEventListener('timeupdate', () => { if (!video.paused) show(video.currentTime); });
     video.addEventListener('ended', () => { video.muted = true; label(); });
     const q = new URLSearchParams(location.search).get('at'); if (q) show(D * +q);
@@ -51,7 +59,7 @@ const SITE = (() => {
       <div class="stage" tabindex="0" aria-label="${esc(w.title)}：左右移動以瀏覽畫面">
         <img src="${base}media/${w.id}.webp" alt="${esc(w.title)}的畫面" loading="lazy" decoding="async">
         <video data-src="${base}media/${w.id}.mp4" muted playsinline preload="none" poster="${base}media/${w.id}.webp"></video>
-        <span class="hint">左右移動瀏覽</span>
+        <span class="hint">左右移動瀏覽</span>${link ? '' : '<button class="big-play" type="button" aria-label="播放（有聲）"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg></button>'}
       </div>
       ${link ? `<div class="title"><h2><a href="${base}works/${w.id}/">${esc(w.title)}</a></h2><div class="en">${esc(w.en)}</div><p>${esc(w.blurb)}</p></div>` : ''}
       <div class="print" aria-hidden="true"><svg viewBox="0 0 1000 54" preserveAspectRatio="none"></svg></div>
