@@ -33,7 +33,7 @@ const SITE = (() => {
     });
     stage.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime + (e.key === 'ArrowRight' ? 1 : -1)); } });
     const ICON = { play: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg>', pause: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.6 1.8h2.4v8.4H2.6zM7 1.8h2.4v8.4H7z"/></svg>' };
-    const label = () => { const on = !video.paused; btn.innerHTML = on ? `${ICON.pause}<span>暫停</span>` : `${ICON.play}<span>播放<small>有聲</small></span>`; btn.classList.toggle('on', on); btn.setAttribute('aria-label', on ? '暫停' : '播放（有聲）'); };
+    const label = () => { const on = !video.paused; btn.innerHTML = on ? ICON.pause : ICON.play; btn.classList.toggle('on', on); btn.setAttribute('aria-label', on ? '暫停' : '播放（有聲）'); };
     label();
     btn.addEventListener('click', () => {
       document.querySelectorAll('video').forEach(v => { if (v !== video && !v.paused) { v.pause(); v.muted = true; } });
@@ -56,6 +56,6 @@ const SITE = (() => {
       ${link ? `<div class="title"><h2><a href="${base}works/${w.id}/">${esc(w.title)}</a></h2><div class="en">${esc(w.en)}</div><p>${esc(w.blurb)}</p></div>` : ''}
       <div class="print" aria-hidden="true"><svg viewBox="0 0 1000 54" preserveAspectRatio="none"></svg></div>
       <div class="readout"><span><b class="t">00:00.0</b> <span class="c">${esc(w.chapters[0][1])}</span></span><span class="dur"></span></div>
-      <div class="actions"><button class="play">播放（有聲）</button>${link ? `<a href="${base}works/${w.id}/">看片頁與幕後</a>` : ''}</div>`;
+      <div class="actions"><button class="play" type="button"></button><span class="sound">有聲</span>${link ? `<a href="${base}works/${w.id}/">看片頁與幕後</a>` : ''}</div>`;
   return { fmt, esc, load, mount, plateHTML };
 })();
