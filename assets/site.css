@@ -276,3 +276,31 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .stage.playing { cursor: pointer; }
 .stage.scrubbing .big-play:not(:hover) { opacity: .35; }
 .work .readout { margin-bottom: 2px; }
+
+/* —— 首頁：幻燈片轉盤＋預覽板（電腦版）—— */
+.shelf { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: stretch; margin-bottom: 96px; }
+.shelf-fig .fig-stage { cursor: grab; }
+.shelf-fig .fig-stage:active { cursor: grabbing; }
+.peek { position: relative; display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: 24px; align-items: center; text-decoration: none; color: inherit; background: var(--plate); border-radius: 14px; padding: 22px; box-shadow: 0 0 0 1px var(--faint); transition: box-shadow .5s var(--ease); }
+.peek:hover { box-shadow: 0 0 0 1px var(--signal), 0 24px 50px -28px rgba(15, 25, 50, .4); }
+.peek-cover { position: relative; aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); }
+.peek-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.peek-blank { position: absolute; inset: 14px; border: 1px dashed var(--edge); border-radius: 4px; display: none; }
+.peek.blank .peek-cover img { display: none; }
+.peek.blank .peek-blank { display: block; }
+.peek.blank { cursor: default; }
+.peek.blank:hover { box-shadow: 0 0 0 1px var(--faint); }
+.peek.blank .arrow { display: none; }
+.peek .card-head { gap: 12px; }
+.peek h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 26px; margin: 14px 0 0; letter-spacing: .02em; }
+.peek .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
+.peek p { font-size: 14.5px; margin: 12px 0 0; }
+.peek .card-go { margin: 18px 0 0; padding: 14px 0 0; }
+.peek:hover .card-go .arrow { transform: translateX(5px); }
+.peek:hover .p-go { color: var(--signal); }
+.peek.swap .peek-cover, .peek.swap .peek-text { animation: peekIn .55s var(--ease) both; }
+.peek.swap .peek-text { animation-delay: .05s; }
+@keyframes peekIn { from { opacity: 0; transform: translateY(8px); } }
+@media (min-width: 901px) { .gallery .filters, .gallery .works { display: none; } }
+@media (max-width: 900px) { .shelf { display: none; } }
+@media (prefers-reduced-motion: reduce) { .peek.swap .peek-cover, .peek.swap .peek-text { animation: none; } }

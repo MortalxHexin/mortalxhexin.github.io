@@ -70,5 +70,7 @@ const FIG = (() => {
     };
     return { stage, handle, point, stopIntro, get text() { return text; } };
   }
-  return { mount };
+  /** 同一頁要掛第二張圖時用：每張圖的檔案都在最外層宣告 const { Cam, … } = HL，放進各自的函式範圍才不會撞名 */
+  const load = url => fetch(url).then(r => r.text()).then(src => { new Function(src)(); });
+  return { mount, load };
 })();

@@ -60,6 +60,22 @@
       <h2 id="works-h">作品</h2>
       <p class="stat" id="stat"></p>
     </div>
+    <!-- 電腦版：幻燈片轉盤＋預覽板；手機版：下面的卡片列表 -->
+    <div class="shelf reveal" id="shelf">
+      <figure class="fig shelf-fig" id="tray" data-label="幻燈片轉盤：每張幻燈片是一支作品。">
+        <div class="fig-head"><span>Fig 1　片盤</span><span class="fig-read" aria-live="polite"></span></div>
+        <div class="fig-stage"></div>
+        <figcaption>滑過看一看，點一下轉到前面，再點一下進入；也可以按住拖著轉。</figcaption>
+      </figure>
+      <a class="peek" id="peek" href="#">
+        <div class="peek-cover"><img alt="" decoding="async"><span class="peek-blank" aria-hidden="true"></span></div>
+        <div class="peek-text">
+          <div class="card-head"><span class="p-fig"></span><span class="p-tag"></span></div>
+          <h3 class="p-title"></h3><div class="en p-en"></div><p class="p-blurb"></p>
+          <div class="card-go"><span class="p-go">看這支片</span><span class="meta p-meta"></span><span class="arrow" aria-hidden="true">→</span></div>
+        </div>
+      </a>
+    </div>
     <div class="filters reveal" id="filters" role="toolbar" aria-label="按風格篩選"></div>
     <div class="works" id="grid"></div>
   </section>
@@ -132,6 +148,48 @@ SITE.load('').then(([WORKS, FP]) => {
     grid.appendChild(a); watch(a);
   });
   const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
+
+  // —— 幻燈片轉盤：作品依新到舊排，空位是「製作中」——
+  window.BIN = WORKS.map(w => [w.title, FP[w.id].dur]);
+  const peek = document.getElementById('peek'), $ = c => peek.querySelector(c);
+  let shown = -2;
+  const show = i => {
+    if (i === shown) return; shown = i;
+    const w = WORKS[i];
+    peek.classList.remove('swap'); void peek.offsetWidth; peek.classList.add('swap');
+    peek.classList.toggle('blank', !w);
+    if (!w) {
+      peek.removeAttribute('href'); $('img').removeAttribute('src');
+      $('.p-fig').textContent = 'Fig —'; $('.p-tag').textContent = '製作中';
+      $('.p-title').textContent = '下一支片'; $('.p-en').textContent = 'Coming next';
+      $('.p-blurb').textContent = '還在代碼裡，沒被畫出來。這一格先空著，留給下一支片。';
+      $('.p-go').textContent = '敬請期待'; $('.p-meta').textContent = '';
+      return;
+    }
+    peek.href = `works/${w.id}/`; $('img').src = `media/${w.id}.webp`; $('img').alt = `${w.title}的畫面`;
+    $('.p-fig').textContent = w.fig; $('.p-tag').textContent = `${w.style}　${w.date}`;
+    $('.p-title').textContent = w.title; $('.p-en').textContent = w.en; $('.p-blurb').textContent = w.blurb;
+    $('.p-go').textContent = '看這支片'; $('.p-meta').textContent = `${FP[w.id].dur.toFixed(0)} 秒 · ${w.chapters.length} 段`;
+  };
+  show(0);
+  FIG.load('assets/hairline/carousel.js').then(() => {
+    let atRead = 0, dragged = false, x0 = 0;
+    const idx = t => { const m = /^(\d+) · /.exec(t); return m ? +m[1] - 1 : -1; };
+    const tray = FIG.mount(document.getElementById('tray'), 'carousel', { rest: '滑過 · 點選 · 拖動', onRead: t => {
+      const i = idx(t); if (i >= 0) show(i); else if (t === 'rest') show(atRead); // 游標離開：預覽回到轉盤前面那張
+      if (i >= 0 && dragged) atRead = i; // 拖著轉時，停在前面的那張就是選中的
+    } });
+    const st = tray.stage;
+    st.addEventListener('pointerdown', e => { dragged = false; x0 = e.clientX; });
+    st.addEventListener('pointermove', e => { if (e.buttons && Math.abs(e.clientX - x0) > 6) dragged = true; });
+    // 點一下：轉到前面；已經在前面的那張再點一下：進入
+    st.addEventListener('click', () => {
+      if (dragged) return;
+      const i = idx(tray.text); if (i < 0) return;
+      if (i === atRead && WORKS[i]) location.href = `works/${WORKS[i].id}/`;
+      else atRead = i;
+    });
+  });
 });
 // 信箱不寫明文：存成反轉的 base64，點按鈕才組回並複製
 document.querySelectorAll('button.mail').forEach(b => b.addEventListener('click', async () => {
