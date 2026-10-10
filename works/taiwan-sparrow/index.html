@@ -146,10 +146,11 @@ SITE.load('../../').then(([WORKS, FP]) => {
     });
     film.video.addEventListener('pause', () => fig.point(null));
     // 圖上的播放鍵：和影片下方那顆同步，等於一支遙控器
-    const mini = fhost.querySelector('.play.mini'), big = host.querySelector('.play');
-    const sync = () => { mini.innerHTML = big.innerHTML; mini.classList.toggle('on', !film.video.paused); mini.setAttribute('aria-label', film.video.paused ? '播放（有聲）' : '暫停'); };
+    const mini = fhost.querySelector('.play.mini');
+    const ICON = { play: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg>', pause: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.6 1.8h2.4v8.4H2.6zM7 1.8h2.4v8.4H7z"/></svg>' };
+    const sync = () => { const on = !film.video.paused; mini.innerHTML = on ? ICON.pause : ICON.play; mini.classList.toggle('on', on); mini.setAttribute('aria-label', on ? '暫停' : '播放（有聲）'); };
     sync(); film.video.addEventListener('play', sync); film.video.addEventListener('pause', sync);
-    mini.addEventListener('click', () => big.click());
+    mini.addEventListener('click', () => film.toggle());
   }
   document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
   document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); jump(b.dataset.t, true); }));

@@ -20,7 +20,7 @@ const SITE = (() => {
     const head = svgEl('line', { class: 'head', x1: 0, x2: 0, y1: 0, y2: 54 }); svg.appendChild(head);
     el.querySelector('.dur').textContent = `${D.toFixed(1)} s`;
 
-    const video = el.querySelector('video'), stage = el.querySelector('.stage'), tOut = el.querySelector('.t'), cOut = el.querySelector('.c'), btn = el.querySelector('.play');
+    const video = el.querySelector('video'), stage = el.querySelector('.stage'), tOut = el.querySelector('.t'), cOut = el.querySelector('.c');
     if (opts.eager) { video.src = video.dataset.src; video.preload = 'auto'; } else lazy.observe(video);
     const chapterAt = t => { let c = w.chapters[0][1], i = 0; w.chapters.forEach(([a, name], j) => { if (t >= a) { c = name; i = j; } }); return [c, i]; };
     const show = t => { head.setAttribute('x1', X(t)); head.setAttribute('x2', X(t)); tOut.textContent = fmt(t); const [c, i] = chapterAt(t); cOut.textContent = c; if (opts.onChapter) opts.onChapter(i); };
@@ -28,42 +28,38 @@ const SITE = (() => {
     const fromX = (e, box) => { const r = box.getBoundingClientRect(); return (e.clientX - r.left) / r.width * D; };
     [stage, el.querySelector('.print')].forEach(box => {
       box.addEventListener('pointermove', e => { if (!video.paused) return; stage.classList.add('scrubbing'); seek(fromX(e, box)); });
-      box.addEventListener('pointerdown', e => { if (!video.paused) seek(fromX(e, box)); });
+      // 播放中：點指紋＝跳到那裡；點畫面＝暫停
+      box.addEventListener('pointerdown', e => { if (video.paused) return; if (box === stage) toggle(); else seek(fromX(e, box)); });
       box.addEventListener('pointerleave', () => stage.classList.remove('scrubbing'));
     });
     stage.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime + (e.key === 'ArrowRight' ? 1 : -1)); } });
-    const ICON = { play: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg>', pause: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.6 1.8h2.4v8.4H2.6zM7 1.8h2.4v8.4H7z"/></svg>' };
-    const label = () => { const on = !video.paused; btn.innerHTML = on ? ICON.pause : ICON.play; btn.classList.toggle('on', on); btn.setAttribute('aria-label', on ? '暫停' : '播放（有聲）'); };
-    label();
-    btn.addEventListener('click', () => {
+    // 播放／暫停：只有畫面正中央一顆大播放鍵；播放中隱藏，點畫面就暫停、它再回來
+    const toggle = () => {
       document.querySelectorAll('video').forEach(v => { if (v !== video && !v.paused) { v.pause(); v.muted = true; } });
       if (!video.src) video.src = video.dataset.src;
       if (video.paused) { video.muted = false; video.play(); } else { video.pause(); video.muted = true; }
-    });
-    video.addEventListener('play', label); video.addEventListener('pause', label);
-    // 畫面正中央的大播放鍵：一打開就看得到，按了就播，播放中隱藏
+    };
     const big = el.querySelector('.big-play');
     if (big) {
       big.addEventListener('pointerdown', e => e.stopPropagation());
-      big.addEventListener('click', e => { e.stopPropagation(); btn.click(); });
-      const vis = () => big.classList.toggle('gone', !video.paused);
+      big.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+      const vis = () => stage.classList.toggle('playing', !video.paused);
       video.addEventListener('play', vis); video.addEventListener('pause', vis);
     }
     video.addEventListener('timeupdate', () => { if (!video.paused) show(video.currentTime); });
-    video.addEventListener('ended', () => { video.muted = true; label(); });
+    video.addEventListener('ended', () => { video.muted = true; });
     const q = new URLSearchParams(location.search).get('at'); if (q) show(D * +q);
-    return { seek, play: () => { if (video.paused) btn.click(); }, video };
+    return { seek, toggle, play: () => { if (video.paused) toggle(); }, video };
   }
   const plateHTML = (w, base, { link = true } = {}) => `
       <div class="plate-head"><span>${w.fig}</span><span><span class="style-tag">${esc(w.style)}</span>　${w.date}</span></div>
       <div class="stage" tabindex="0" aria-label="${esc(w.title)}：左右移動以瀏覽畫面">
         <img src="${base}media/${w.id}.webp" alt="${esc(w.title)}的畫面" loading="lazy" decoding="async">
         <video data-src="${base}media/${w.id}.mp4" muted playsinline preload="none" poster="${base}media/${w.id}.webp"></video>
-        <span class="hint">左右移動瀏覽</span>${link ? '' : '<button class="big-play" type="button" aria-label="播放（有聲）"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg></button>'}
+        <span class="hint">左右移動瀏覽</span>${link ? '' : '<button class="big-play" type="button" aria-label="播放（有聲）"><span class="ring"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg></span><span class="sound">有聲</span></button>'}
       </div>
       ${link ? `<div class="title"><h2><a href="${base}works/${w.id}/">${esc(w.title)}</a></h2><div class="en">${esc(w.en)}</div><p>${esc(w.blurb)}</p></div>` : ''}
       <div class="print" aria-hidden="true"><svg viewBox="0 0 1000 54" preserveAspectRatio="none"></svg></div>
-      <div class="readout"><span><b class="t">00:00.0</b> <span class="c">${esc(w.chapters[0][1])}</span></span><span class="dur"></span></div>
-      <div class="actions"><button class="play" type="button"></button><span class="sound">有聲</span>${link ? `<a href="${base}works/${w.id}/">看片頁與幕後</a>` : ''}</div>`;
+      <div class="readout"><span><b class="t">00:00.0</b> <span class="c">${esc(w.chapters[0][1])}</span></span><span class="dur"></span></div>`;
   return { fmt, esc, load, mount, plateHTML };
 })();
