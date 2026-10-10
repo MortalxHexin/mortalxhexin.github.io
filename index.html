@@ -32,9 +32,16 @@
   </header>
 
   <section class="intro">
-    <h1>每一幀，<br>都由代碼畫成。</h1>
-    <p>照片交給 AI 生成，其餘的線條、動作、鏡頭和聲音，都是一行一行寫出來的。把游標移到畫面或下方的指紋上，就能在片中前後移動。
-      <span class="en">Short films drawn frame by frame in code. Move along a film's fingerprint to travel through it.</span></p>
+    <div class="intro-text">
+      <h1>每一幀，<br>都由代碼畫成。</h1>
+      <p>照片交給 AI 生成，其餘的線條、動作、鏡頭和聲音，都是一行一行寫出來的。把游標移到畫面或下方的指紋上，就能在片中前後移動。
+        <span class="en">Short films drawn frame by frame in code. Move along a film's fingerprint to travel through it.</span></p>
+    </div>
+    <figure class="fig hero-fig" id="hero" data-label="一幀畫面拆成五層：代碼、墨線、淡彩、照片、成片。">
+      <div class="fig-head"><span>Fig 0　一幀的五層</span><span class="fig-read" aria-live="polite"></span></div>
+      <div class="fig-stage"></div>
+      <figcaption>游標或手指往右，把一幀拆開；停在哪一層，就看哪一層。<span class="en">Move right to take a frame apart.</span></figcaption>
+    </figure>
   </section>
 
   <div class="filters" id="filters" role="toolbar" aria-label="按風格篩選"></div>
@@ -61,6 +68,10 @@
 </div>
 
 <script src="assets/site.js"></script>
+<script src="assets/hairline/kernel.js"></script>
+<script src="assets/figures.js"></script>
+<script src="assets/hairline/frame.js"></script>
+<script>FIG.mount(document.getElementById('hero'), 'frame', { rest: '← 移過來 →', intro: true });</script>
 <script>
 SITE.load('').then(([WORKS, FP]) => {
   const host = document.getElementById('works');

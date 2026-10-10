@@ -35,6 +35,11 @@
       <h1>小麻雀追袋記</h1>
       <div class="en">The Sparrow and the Bag</div>
       <p class="lede">一隻小麻雀追著被風吹走的紅白塑膠袋，穿過電鍋、珍奶、蚊香和藍白拖。十件台灣日常物件，每一件都變成了別的東西。</p>
+      <figure class="fig work-fig" id="wfig" data-label="片中十格排成一張圖鑑，路線一路往上爬。">
+        <div class="fig-head"><span>Fig 1.2.0　圖鑑的十格</span><span class="fig-read" aria-live="polite"></span></div>
+        <div class="fig-stage"></div>
+        <figcaption>片裡的十格，照小麻雀追袋子的路線排好。點一格，影片跳到那一段；播放時，小麻雀跟著片子走。</figcaption>
+      </figure>
       <ol class="chapters" aria-label="章節，點一下跳到那一段">
 <li><button type="button" data-t="0"><span>00:00.0</span><span>早餐盤</span></button></li>
 <li><button type="button" data-t="3.6"><span>00:03.6</span><span>電鍋</span></button></li>
@@ -117,13 +122,30 @@ camera.rotate(-.3 * Math.sin(Math.PI * progress));</code></pre></div>
   </footer>
 </div>
 <script src="../../assets/site.js"></script>
+<script src="../../assets/hairline/kernel.js"></script><script src="../../assets/figures.js"></script><script src="../../assets/hairline/board.js"></script>
 <script>
 SITE.load('../../').then(([WORKS, FP]) => {
   const host = document.getElementById('player'), w = WORKS.find(x => x.id === host.dataset.id);
   host.innerHTML = SITE.plateHTML(w, '../../', { link: false });
   const items = [...document.querySelectorAll('.chapters li')];
-  const film = SITE.mount(host, w, FP[w.id], { eager: true, onChapter: i => items.forEach((li, j) => li.classList.toggle('on', i === j)) });
+  let film = null, fig = null;
+  film = SITE.mount(host, w, FP[w.id], { eager: true, onChapter: i => {
+    items.forEach((li, j) => li.classList.toggle('on', i === j));
+    if (fig && film && !film.video.paused) fig.point(w.chapters[i][1]); // 播放時，線稿圖跟著片子走
+  } });
   const jump = (t, play) => { film.seek(+t); if (play) film.play(); };
+  const fhost = document.getElementById('wfig');
+  if (fhost && typeof FIG !== 'undefined') {
+    fig = FIG.mount(fhost, w.figure.name, { rest: w.figure.rest });
+    // 點圖上的一格／一盞燈：影片跳到那一段並播放
+    fig.stage.addEventListener('click', () => {
+      const m = /^\d+ · (.+)$/.exec(fig.text), c = m && w.chapters.find(([, name]) => name === m[1]);
+      if (!c) return;
+      if (host.getBoundingClientRect().top < 0 || host.getBoundingClientRect().bottom > innerHeight) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      jump(c[0], true);
+    });
+    film.video.addEventListener('pause', () => fig.point(null));
+  }
   document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
   document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); jump(b.dataset.t, true); }));
 });

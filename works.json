@@ -115,7 +115,14 @@
     "file": "film.js",
     "code": "function spiral(k) {                    // k：0 在中心，1 在尾端\n  const th = lerp(.96 - 5 * Math.PI, .96, k);\n  const r  = lerp(40, 420, k);\n  return [cx + r * Math.cos(th), cy + r * .62 * Math.sin(th)];\n}\nconst burnt = range(0, 160 * k).map(i => spiral(i / 160));\nstroke(burnt, '#ff9a3c', 38, .4);       // 外層光暈\nstroke(burnt, '#ff6a1f', 10, .95);      // 引信本體\nburnt.filter((_, i) => i % 23 === 0)\n     .forEach(p => smoke(p, t));        // 冒煙\ncamera.rotate(-.3 * Math.sin(Math.PI * progress));"
    }
-  ]
+  ],
+  "figure": {
+   "name": "board",
+   "title": "圖鑑的十格",
+   "label": "片中十格排成一張圖鑑，路線一路往上爬。",
+   "rest": "點一格 → 看那一段",
+   "cap": "片裡的十格，照小麻雀追袋子的路線排好。點一格，影片跳到那一段；播放時，小麻雀跟著片子走。"
+  }
  },
  {
   "id": "light-evolution",
@@ -237,6 +244,13 @@
     "file": "scene.js",
     "code": "const q = smooth((t - t0) / 4.5);             // 4.5 秒拉遠\nconst E = Math.pow(16, 1 - q);               // 放大 16 倍 → 1 倍\nctx.filter = `blur(${Math.max(0, (E - 2) * 1.6)}px)`;\nctx.drawImage(earth, A[0] - TW[0] * E, A[1] - TW[1] * E,\n              w * E, h * E);\nctx.filter = 'none';\n// 最後一代的畫面用柔邊遮罩收成光點\nfeather(lampFrame, 1 - E / 16);"
    }
-  ]
+  ],
+  "figure": {
+   "name": "lamps",
+   "title": "七盞光",
+   "label": "從火到 LED，七盞光站在一階比一階高的展台上。",
+   "rest": "點一盞 → 看那一段",
+   "cap": "從火到 LED，展台一階比一階高。點一盞燈，影片跳到那一段；播放時，正在講的那盞會亮。"
+  }
  }
 ]
