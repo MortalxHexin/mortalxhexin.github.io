@@ -28,7 +28,7 @@ for n, w in enumerate(works):
     figure = f'''<figure class="fig work-fig" id="wfig" data-label="{e(fg['label'])}">
         <div class="fig-head"><span>{e(w['fig'])}.0　{e(fg['title'])}</span><span class="fig-read" aria-live="polite"></span></div>
         <div class="fig-stage"></div>
-        <figcaption>{e(fg['cap'])}</figcaption>
+        <figcaption><span>{e(fg['cap'])}</span><button class="play mini" type="button" aria-label="播放（有聲）"></button></figcaption>
       </figure>''' if fg else ''
     nav = (f'<a href="../{prev_w["id"]}/">上一支　{e(prev_w["title"])}</a>' if prev_w else '<span></span>') + (f'<a href="../{next_w["id"]}/">下一支　{e(next_w["title"])}</a>' if next_w else '<a href="../../">回到全部作品</a>')
     page = f'''<!doctype html>
@@ -113,6 +113,11 @@ SITE.load('../../').then(([WORKS, FP]) => {{
       jump(c[0], true);
     }});
     film.video.addEventListener('pause', () => fig.point(null));
+    // 圖上的播放鍵：和影片下方那顆同步，等於一支遙控器
+    const mini = fhost.querySelector('.play.mini'), big = host.querySelector('.play');
+    const sync = () => {{ mini.innerHTML = big.innerHTML; mini.classList.toggle('on', !film.video.paused); mini.setAttribute('aria-label', film.video.paused ? '播放（有聲）' : '暫停'); }};
+    sync(); film.video.addEventListener('play', sync); film.video.addEventListener('pause', sync);
+    mini.addEventListener('click', () => big.click());
   }}
   document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
   document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => {{ host.scrollIntoView({{ behavior: 'smooth', block: 'start' }}); jump(b.dataset.t, true); }}));
