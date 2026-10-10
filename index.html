@@ -6,6 +6,8 @@
 <title>感動的幸福 · 代碼影像</title>
 <meta name="description" content="每一幀都由代碼畫成的短片作品集。Short films where every frame is drawn in code.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#E9ECEC">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="感動的幸福">
@@ -38,7 +40,21 @@
   <div class="filters" id="filters" role="toolbar" aria-label="按風格篩選"></div>
   <main class="works" id="works"></main>
 
-  <footer id="about">
+  <section class="about" id="about" aria-labelledby="about-h">
+    <h2 id="about-h">關於</h2>
+    <div class="about-body">
+      <p>我是感動的幸福，白天是工程師，業餘用 AI 和代碼做影片。這裡每一支片的畫面、音效和配樂都由代碼生成，做法和原始碼全部公開。</p>
+      <p class="en">An engineer making films where every frame is drawn in code. Methods and source are open.</p>
+    </div>
+    <dl class="contact">
+      <dt>合作・來信</dt>
+      <dd><button type="button" class="mail" data-m="=02bj5yav9Gb0V3bARTM0cnblh2Yhlma">複製信箱</button><span class="mail-out" aria-live="polite"></span></dd>
+      <dt>小紅書</dt>
+      <dd><a href="https://xhslink.cn/o/74lCxxGtSwO" target="_blank" rel="noopener">Perseverance</a><span class="note">日常更新在小紅書（簡體中文）</span></dd>
+    </dl>
+  </section>
+
+  <footer>
     <span>照片由 AI 生成；畫面、音效與配樂由代碼生成。配樂取樣來自 CC0 樂器庫。</span>
     <span>© 2026 gandongdexingfu</span>
   </footer>
@@ -61,6 +77,12 @@ SITE.load('').then(([WORKS, FP]) => {
   });
   const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
 });
+// 信箱不寫明文：存成反轉的 base64，點按鈕才組回並複製
+document.querySelectorAll('button.mail').forEach(b => b.addEventListener('click', async () => {
+  const m = atob(b.dataset.m.split('').reverse().join('')), out = b.nextElementSibling;
+  try { await navigator.clipboard.writeText(m); out.textContent = '已複製：' + m; }
+  catch { out.textContent = m; }
+}));
 </script>
 </body>
 </html>

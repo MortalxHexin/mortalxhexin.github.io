@@ -134,3 +134,16 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
   .pair .code { border-right: 0; border-bottom: 1px solid var(--faint); }
   .pair figure img { aspect-ratio: 4 / 3; }
 }
+
+/* 關於 */
+.about { border-top: 1px solid var(--line); margin-top: 56px; padding: 36px 0 44px; display: grid; grid-template-columns: 160px 1fr; gap: 18px 40px; }
+.about h2 { font-family: var(--mono); font-weight: 400; font-size: 12.5px; color: var(--dim); margin: 4px 0 0; letter-spacing: .04em; }
+.about-body p { margin: 0; font-size: 16px; max-width: 34em; }
+.about-body .en { font-family: var(--mono); font-size: 12.5px; color: var(--dim); margin-top: 8px; }
+.contact { grid-column: 2; display: grid; grid-template-columns: auto 1fr; gap: 12px 28px; margin: 14px 0 0; font-size: 14px; align-items: baseline; }
+.contact dt { color: var(--dim); }
+.contact dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.contact a, .contact button.mail { font: inherit; color: var(--ink); background: none; border: 0; padding: 0 0 1px; cursor: pointer; text-decoration: none; border-bottom: 1.5px solid var(--signal); }
+.contact .mail-out, .contact .note { font-size: 12.5px; color: var(--dim); }
+.contact .mail-out { font-family: var(--mono); }
+@media (max-width: 640px) { .about { grid-template-columns: 1fr; } .contact { grid-column: 1; } }
