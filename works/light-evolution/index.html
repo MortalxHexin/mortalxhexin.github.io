@@ -38,7 +38,7 @@
       <figure class="fig work-fig" id="wfig" data-label="從火到 LED，七盞光站在一階比一階高的展台上。">
         <div class="fig-head"><span>Fig 1.1.0　七盞光</span><span class="fig-read" aria-live="polite"></span></div>
         <div class="fig-stage"></div>
-        <figcaption>從火到 LED，展台一階比一階高。點一盞燈，影片跳到那一段；播放時，正在講的那盞會亮。</figcaption>
+        <figcaption><span>從火到 LED，展台一階比一階高。點一盞燈，影片跳到那一段；播放時，正在講的那盞會亮。</span><button class="play mini" type="button" aria-label="播放（有聲）"></button></figcaption>
       </figure>
       <ol class="chapters" aria-label="章節，點一下跳到那一段">
 <li><button type="button" data-t="0"><span>00:00.0</span><span>序幕 火柴</span></button></li>
@@ -140,6 +140,11 @@ SITE.load('../../').then(([WORKS, FP]) => {
       jump(c[0], true);
     });
     film.video.addEventListener('pause', () => fig.point(null));
+    // 圖上的播放鍵：和影片下方那顆同步，等於一支遙控器
+    const mini = fhost.querySelector('.play.mini'), big = host.querySelector('.play');
+    const sync = () => { mini.innerHTML = big.innerHTML; mini.classList.toggle('on', !film.video.paused); mini.setAttribute('aria-label', film.video.paused ? '播放（有聲）' : '暫停'); };
+    sync(); film.video.addEventListener('play', sync); film.video.addEventListener('pause', sync);
+    mini.addEventListener('click', () => big.click());
   }
   document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
   document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); jump(b.dataset.t, true); }));
