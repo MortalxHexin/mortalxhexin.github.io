@@ -33,6 +33,8 @@ for n, w in enumerate(works):
 <title>{e(w['title'])} · 感動的幸福</title>
 <meta name="description" content="{e(w['blurb'])}">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
 <meta name="theme-color" content="#E9ECEC">
 <meta property="og:type" content="video.other">
 <meta property="og:site_name" content="感動的幸福">
