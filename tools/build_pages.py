@@ -24,6 +24,12 @@ for n, w in enumerate(works):
     <pre><code>{code_html(b['code'])}</code></pre></div>
   <figure><img src="../../media/bts/{b['img']}.webp" alt="{e(b['title'])}的畫面" loading="lazy" decoding="async">{f'<button type="button" data-t="{b["at"]}">看片中這一段</button>' if b['at'] is not None else ''}</figure>
 </article>''' for i, b in enumerate(w['bts']))
+    fg = w.get('figure')
+    figure = f'''<figure class="fig work-fig" id="wfig" data-label="{e(fg['label'])}">
+        <div class="fig-head"><span>{e(w['fig'])}.0　{e(fg['title'])}</span><span class="fig-read" aria-live="polite"></span></div>
+        <div class="fig-stage"></div>
+        <figcaption>{e(fg['cap'])}</figcaption>
+      </figure>''' if fg else ''
     nav = (f'<a href="../{prev_w["id"]}/">上一支　{e(prev_w["title"])}</a>' if prev_w else '<span></span>') + (f'<a href="../{next_w["id"]}/">下一支　{e(next_w["title"])}</a>' if next_w else '<a href="../../">回到全部作品</a>')
     page = f'''<!doctype html>
 <html lang="zh-Hant">
@@ -62,6 +68,7 @@ for n, w in enumerate(works):
       <h1>{e(w['title'])}</h1>
       <div class="en">{e(w['en'])}</div>
       <p class="lede">{e(w['blurb'])}</p>
+      {figure}
       <ol class="chapters" aria-label="章節，點一下跳到那一段">
 {chapters}
       </ol>
@@ -83,13 +90,30 @@ for n, w in enumerate(works):
   </footer>
 </div>
 <script src="../../assets/site.js"></script>
+{f'<script src="../../assets/hairline/kernel.js"></script><script src="../../assets/figures.js"></script><script src="../../assets/hairline/{fg["name"]}.js"></script>' if fg else ''}
 <script>
 SITE.load('../../').then(([WORKS, FP]) => {{
   const host = document.getElementById('player'), w = WORKS.find(x => x.id === host.dataset.id);
   host.innerHTML = SITE.plateHTML(w, '../../', {{ link: false }});
   const items = [...document.querySelectorAll('.chapters li')];
-  const film = SITE.mount(host, w, FP[w.id], {{ eager: true, onChapter: i => items.forEach((li, j) => li.classList.toggle('on', i === j)) }});
+  let film = null, fig = null;
+  film = SITE.mount(host, w, FP[w.id], {{ eager: true, onChapter: i => {{
+    items.forEach((li, j) => li.classList.toggle('on', i === j));
+    if (fig && film && !film.video.paused) fig.point(w.chapters[i][1]); // 播放時，線稿圖跟著片子走
+  }} }});
   const jump = (t, play) => {{ film.seek(+t); if (play) film.play(); }};
+  const fhost = document.getElementById('wfig');
+  if (fhost && typeof FIG !== 'undefined') {{
+    fig = FIG.mount(fhost, w.figure.name, {{ rest: w.figure.rest }});
+    // 點圖上的一格／一盞燈：影片跳到那一段並播放
+    fig.stage.addEventListener('click', () => {{
+      const m = /^\\d+ · (.+)$/.exec(fig.text), c = m && w.chapters.find(([, name]) => name === m[1]);
+      if (!c) return;
+      if (host.getBoundingClientRect().top < 0 || host.getBoundingClientRect().bottom > innerHeight) host.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+      jump(c[0], true);
+    }});
+    film.video.addEventListener('pause', () => fig.point(null));
+  }}
   document.querySelectorAll('.chapters button').forEach(b => b.addEventListener('click', () => jump(b.dataset.t, !film.video.paused)));
   document.querySelectorAll('.pair figure button').forEach(b => b.addEventListener('click', () => {{ host.scrollIntoView({{ behavior: 'smooth', block: 'start' }}); jump(b.dataset.t, true); }}));
 }});
