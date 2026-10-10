@@ -168,3 +168,70 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .lost .code { font-family: var(--mono); font-size: 12.5px; color: var(--dim); margin: 0 0 14px; }
 .lost a.back { display: inline-block; margin-top: 26px; color: var(--ink); text-decoration: none; border-bottom: 1.5px solid var(--signal); }
 @media (max-width: 900px) { .lost { grid-template-columns: 1fr; gap: 32px; padding: 48px 0 64px; } }
+
+/* —— 首頁：開場敘事 —— */
+:root { --ease: cubic-bezier(.32, .72, 0, 1); }
+.story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 500px); grid-template-areas: "hero fig" "steps fig"; column-gap: 64px; }
+.story-hero { grid-area: hero; min-height: calc(100vh - 70px); min-height: calc(100svh - 70px); display: flex; flex-direction: column; justify-content: center; padding: 24px 0 48px; }
+.story-hero h1 { font-family: "Noto Sans TC", var(--sans); font-weight: 300; font-size: clamp(40px, 6.4vw, 78px); line-height: 1.12; letter-spacing: .01em; margin: 0; }
+.story-hero p { margin: 26px 0 0; color: var(--dim); font-size: 16.5px; max-width: 30em; }
+.story-hero p .en { display: block; font-family: var(--mono); font-size: 12.5px; margin-top: 6px; }
+.cue { margin-top: 40px; align-self: flex-start; font-size: 14px; color: var(--ink); text-decoration: none; display: inline-flex; gap: 10px; align-items: baseline; border-bottom: 1.5px solid var(--signal); padding-bottom: 2px; }
+.cue span { display: inline-block; animation: nudge 2.4s var(--ease) infinite; }
+@keyframes nudge { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(4px); } }
+.story-fig { grid-area: fig; }
+.story-fig .fig { position: sticky; top: max(24px, calc(50vh - 250px)); top: max(24px, calc(50svh - 250px)); }
+.story-steps { grid-area: steps; list-style: none; margin: 0; padding: 0 0 18vh; }
+.story-steps .step { min-height: 72vh; display: flex; flex-direction: column; justify-content: center; max-width: 30em; opacity: .28; transition: opacity .7s var(--ease); }
+.story-steps .step.on { opacity: 1; }
+.step .n { font-family: var(--mono); font-size: 12px; color: var(--signal); letter-spacing: .04em; }
+.step h2 { font-family: "Noto Sans TC", var(--sans); font-weight: 300; font-size: clamp(28px, 3.6vw, 44px); line-height: 1.2; margin: 12px 0 0; }
+.step p { font-size: 16px; color: var(--dim); margin: 16px 0 0; }
+
+/* 標語一行一行浮上來；其他東西捲進畫面時輕輕浮起 */
+.lines span { display: block; animation: up 1s var(--ease) both; }
+.lines span:nth-child(2) { animation-delay: .14s; }
+.rise { animation: up 1s var(--ease) .32s both; }
+.cue.rise { animation-delay: .5s; }
+@keyframes up { from { opacity: 0; transform: translateY(22px); } }
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: var(--d, 0ms); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* —— 首頁：作品 —— */
+.gallery { padding-top: 32px; }
+.gallery-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 28px; margin-bottom: 18px; }
+.gallery-head h2 { font-family: "Noto Sans TC", var(--sans); font-weight: 300; font-size: clamp(30px, 3.6vw, 44px); margin: 0; }
+.stat { font-family: var(--mono); font-size: 12.5px; color: var(--dim); margin: 0; }
+.card { display: flex; flex-direction: column; text-decoration: none; color: inherit; background: var(--plate); border-radius: 14px; padding: 18px 20px 0; box-shadow: 0 0 0 1px var(--faint); transition: box-shadow .5s var(--ease), transform .9s var(--ease), opacity .9s var(--ease); }
+.card[hidden] { display: none; }
+.card:hover { box-shadow: 0 0 0 1px var(--signal), 0 18px 40px -24px rgba(20, 30, 60, .35); }
+.card-head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.card-stage { position: relative; margin: 16px auto 0; width: min(100%, 280px); aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); cursor: ew-resize; }
+.card-stage img, .card-stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-stage video { opacity: 0; transition: opacity .25s; }
+.card-stage.live video { opacity: 1; }
+.card-stage img { transition: transform 1.2s var(--ease); }
+.card:hover .card-stage img { transform: scale(1.025); }
+.scrub { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--signal); transform: scaleX(0); transform-origin: left; }
+.card-body { margin-top: 20px; }
+.card-body h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 24px; margin: 0; letter-spacing: .02em; }
+.card-body .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
+.card-body p { font-size: 14.5px; margin: 10px 0 0; max-width: 32em; }
+.card-go { margin: 20px -20px 0; padding: 15px 20px; border-top: 1px solid var(--faint); display: flex; align-items: baseline; gap: 14px; font-size: 14.5px; }
+.card-go .meta { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-left: auto; }
+.card-go .arrow { color: var(--signal); transition: transform .5s var(--ease); }
+.card:hover .card-go .arrow { transform: translateX(5px); }
+.card:hover .card-go > span:first-child { color: var(--signal); }
+
+@media (max-width: 900px) {
+  .story { grid-template-columns: 1fr; grid-template-areas: "hero" "fig" "steps"; }
+  .story-hero { min-height: auto; padding: 48px 0 28px; }
+  .story-fig { position: sticky; top: 0; z-index: 2; background: var(--page); padding: 8px 0 10px; }
+  .story-fig .fig { position: static; max-width: 520px; margin: 0 auto; }
+  .story-fig figcaption { display: none; }
+  .story-steps .step { min-height: 56vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lines span, .rise, .cue span { animation: none; }
+  .reveal { opacity: 1; transform: none; }
+}

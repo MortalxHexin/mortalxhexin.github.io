@@ -96,6 +96,7 @@ function mount({ stage, svg, read }, value) {
     if (a === act) return;
     act = a;
     els.forEach((E, i) => E.face.classList.toggle("hi", i === a));
+    read.textContent = a >= 0 ? `0${a + 1} · ${PANES[a].name}` : inStage ? `gap ${(GAP * e.x).toFixed(0)}` : "rest";
     B.wake();
   }
 
