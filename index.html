@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>感動的幸福 · 代碼影像</title>
 <meta name="description" content="每一幀都由代碼畫成的短片作品集。Short films where every frame is drawn in code.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#E9ECEC">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="感動的幸福">
+<meta property="og:title" content="感動的幸福 · 每一幀，都由代碼畫成。">
+<meta property="og:description" content="用代碼一幀一幀畫出來的短片作品集。滑過指紋，在片中前後移動。">
+<meta property="og:url" content="https://gandongdexingfu.github.io/">
+<meta property="og:image" content="https://gandongdexingfu.github.io/media/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gandongdexingfu.github.io/media/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
@@ -142,6 +154,8 @@ fetch('media/fingerprints.json').then(r => r.json()).then(FP => {
   mk('全部', '*', WORKS.length); styles.forEach(st => mk(st, st, WORKS.filter(w => w.style === st).length));
   const apply = key => { bar.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === key)); document.querySelectorAll('.plate').forEach(p => { p.hidden = key !== '*' && p.dataset.style !== key; }); try { history.replaceState(null, '', key === '*' ? location.pathname : '?style=' + encodeURIComponent(key)); } catch (e) {} };
   bar.addEventListener('click', e => { const b = e.target.closest('button'); if (b) apply(b.dataset.key); });
+  // 影片接近畫面時才開始載入，手機上省流量
+  const lazy = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { const v = e.target; v.src = v.dataset.src; v.preload = 'metadata'; lazy.unobserve(v); } }), { rootMargin: '600px 0px' });
   WORKS.forEach(w => {
     const fp = FP[w.id], D = fp.dur;
     const el = document.createElement('article'); el.className = 'plate';
@@ -149,8 +163,8 @@ fetch('media/fingerprints.json').then(r => r.json()).then(FP => {
     el.innerHTML = `
       <div class="plate-head"><span>${w.fig}</span><span><span class="style-tag">${w.style}</span>　${w.date}</span></div>
       <div class="stage" tabindex="0" aria-label="${w.title}：左右移動以瀏覽畫面">
-        <img src="media/${w.id}.jpg" alt="">
-        <video src="media/${w.id}.mp4" muted playsinline preload="metadata" poster="media/${w.id}.jpg"></video>
+        <img src="media/${w.id}.webp" alt="${w.title}的畫面" loading="lazy" decoding="async">
+        <video data-src="media/${w.id}.mp4" muted playsinline preload="none" poster="media/${w.id}.webp"></video>
         <span class="hint">左右移動瀏覽</span>
       </div>
       <div class="title"><h2>${w.title}</h2><div class="en">${w.en}</div><p>${w.blurb}</p></div>
@@ -170,7 +184,9 @@ fetch('media/fingerprints.json').then(r => r.json()).then(FP => {
     w.chapters.forEach(([t]) => { const l = document.createElementNS(NS, 'line'); l.setAttribute('class', 'tick'); Object.entries({ x1: X(t), x2: X(t), y1: 46, y2: 54 }).forEach(([k, v]) => l.setAttribute(k, v)); svg.appendChild(l); });
     const head = document.createElementNS(NS, 'line'); head.setAttribute('class', 'head'); Object.entries({ x1: 0, x2: 0, y1: 0, y2: 54 }).forEach(([k, v]) => head.setAttribute(k, v)); svg.appendChild(head);
 
-    const video = el.querySelector('video'), stage = el.querySelector('.stage'), tOut = el.querySelector('.t'), cOut = el.querySelector('.c');
+    const video = el.querySelector('video');
+    lazy.observe(video);
+    const _v = video, stage = el.querySelector('.stage'), tOut = el.querySelector('.t'), cOut = el.querySelector('.c');
     const chapterAt = t => { let c = w.chapters[0][1]; for (const [a, name] of w.chapters) if (t >= a) c = name; return c; };
     const show = t => { head.setAttribute('x1', X(t)); head.setAttribute('x2', X(t)); tOut.textContent = fmt(t); cOut.textContent = chapterAt(t); };
     const seek = t => { t = Math.max(0, Math.min(D - .05, t)); show(t); if (video.readyState >= 1 && video.paused) video.currentTime = t; };
