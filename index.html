@@ -40,7 +40,7 @@
       <a class="cue rise" href="#step-1">往下捲，拆開一幀<span aria-hidden="true">↓</span></a>
     </div>
     <div class="story-fig">
-      <figure class="fig hero-fig" id="hero" data-label="一幀畫面拆成五層：代碼、墨線、淡彩、照片、成片。">
+      <figure class="fig hero-fig" id="hero" data-tilt="3" data-lift="10" data-label="一幀畫面拆成五層：代碼、墨線、淡彩、照片、成片。">
         <div class="fig-head"><span>Fig 0　一幀的五層</span><span class="fig-read" aria-live="polite"></span></div>
         <div class="fig-stage"></div>
         <figcaption>游標或手指移上來，也能自己拆。<span class="en">Hover to take it apart yourself.</span></figcaption>
@@ -85,6 +85,7 @@
 </div>
 
 <script src="assets/site.js"></script>
+<script src="assets/tilt.js" defer></script>
 <script src="assets/hairline/kernel.js"></script>
 <script src="assets/figures.js"></script>
 <script src="assets/hairline/frame.js"></script>
@@ -122,7 +123,7 @@ SITE.load('').then(([WORKS, FP]) => {
   bar.addEventListener('click', e => { const b = e.target.closest('button'); if (b) apply(b.dataset.key); });
   WORKS.forEach((w, i) => {
     const D = FP[w.id].dur, n = w.chapters.length;
-    const a = document.createElement('a'); a.className = 'card reveal'; a.href = `works/${w.id}/`; a.dataset.style = w.style; a.style.setProperty('--d', i * 90 + 'ms');
+    const a = document.createElement('a'); a.className = 'card reveal'; a.dataset.tilt = '6'; a.href = `works/${w.id}/`; a.dataset.style = w.style; a.style.setProperty('--d', i * 90 + 'ms');
     a.innerHTML = `
       <div class="card-head"><span>${w.fig}</span><span><span class="style-tag">${SITE.esc(w.style)}</span>　${w.date}</span></div>
       <div class="card-stage"><img src="media/${w.id}.webp" alt="${SITE.esc(w.title)}的畫面" loading="lazy" decoding="async"><video muted playsinline preload="none"></video><span class="scrub"></span></div>
