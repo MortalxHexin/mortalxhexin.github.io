@@ -31,21 +31,38 @@
     <nav class="top"><a href="#works">作品</a><a href="#about">關於</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine">做法</a></nav>
   </header>
 
-  <section class="intro">
-    <div class="intro-text">
-      <h1>每一幀，<br>都由代碼畫成。</h1>
-      <p>照片交給 AI 生成，其餘的線條、動作、鏡頭和聲音，都是一行一行寫出來的。把游標移到畫面或下方的指紋上，就能在片中前後移動。
-        <span class="en">Short films drawn frame by frame in code. Move along a film's fingerprint to travel through it.</span></p>
+  <!-- 開場：往下捲，主圖黏在右邊，一層一層拆開一幀 -->
+  <section class="story" id="story" aria-label="一幀畫面是怎麼做出來的">
+    <div class="story-hero step" data-layer="">
+      <h1 class="lines"><span>每一幀，</span><span>都由代碼畫成。</span></h1>
+      <p class="rise">照片交給 AI 生成，其餘的線條、動作、鏡頭和聲音，都是一行一行寫出來的。
+        <span class="en">Short films drawn frame by frame in code.</span></p>
+      <a class="cue rise" href="#step-1">往下捲，拆開一幀<span aria-hidden="true">↓</span></a>
     </div>
-    <figure class="fig hero-fig" id="hero" data-label="一幀畫面拆成五層：代碼、墨線、淡彩、照片、成片。">
-      <div class="fig-head"><span>Fig 0　一幀的五層</span><span class="fig-read" aria-live="polite"></span></div>
-      <div class="fig-stage"></div>
-      <figcaption>游標或手指往右，把一幀拆開；停在哪一層，就看哪一層。<span class="en">Move right to take a frame apart.</span></figcaption>
-    </figure>
+    <div class="story-fig">
+      <figure class="fig hero-fig" id="hero" data-label="一幀畫面拆成五層：代碼、墨線、淡彩、照片、成片。">
+        <div class="fig-head"><span>Fig 0　一幀的五層</span><span class="fig-read" aria-live="polite"></span></div>
+        <div class="fig-stage"></div>
+        <figcaption>游標或手指移上來，也能自己拆。<span class="en">Hover to take it apart yourself.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="story-steps">
+      <li class="step" id="step-1" data-layer="code"><span class="n">01　代碼 code</span><h2>一切從一行代碼開始。</h2><p>畫面裡的每一條線、每一個動作、每一次鏡頭移動，都先寫成代碼。改一個數字，整支片跟著變。</p></li>
+      <li class="step" data-layer="ink"><span class="n">02　墨線 ink</span><h2>線會抖，會超出頭。</h2><p>代碼模仿手的不穩：一筆一筆畫出來，偶爾斷筆，每秒輕輕晃十二次，像真的有人在紙上畫。</p></li>
+      <li class="step" data-layer="wash"><span class="n">03　淡彩 wash</span><h2>顏色從一個點暈開。</h2><p>水彩不是一下塗滿，而是從中心綻開，邊緣留下一圈乾掉的痕跡，再錯開兩個像素。</p></li>
+      <li class="step" data-layer="photo"><span class="n">04　照片 photo</span><h2>照片墊在最底下。</h2><p>真實的物件由 AI 生成照片，塗鴉和它互動：電扇的扇葉真的會轉，熱氣真的會往上飄。</p></li>
+      <li class="step" data-layer="frame"><span class="n">05　成片 frame</span><h2>疊起來，加上聲音。</h2><p>配樂和音效也是代碼寫的，每個卡點都對在畫面上。二十四分之一秒，就是一幀。</p></li>
+    </ol>
   </section>
 
-  <div class="filters" id="filters" role="toolbar" aria-label="按風格篩選"></div>
-  <main class="works" id="works"></main>
+  <section class="gallery" id="works" aria-labelledby="works-h">
+    <div class="gallery-head reveal">
+      <h2 id="works-h">作品</h2>
+      <p class="stat" id="stat"></p>
+    </div>
+    <div class="filters reveal" id="filters" role="toolbar" aria-label="按風格篩選"></div>
+    <div class="works" id="grid"></div>
+  </section>
 
   <section class="about" id="about" aria-labelledby="about-h">
     <h2 id="about-h">關於</h2>
@@ -71,20 +88,58 @@
 <script src="assets/hairline/kernel.js"></script>
 <script src="assets/figures.js"></script>
 <script src="assets/hairline/frame.js"></script>
-<script>FIG.mount(document.getElementById('hero'), 'frame', { rest: '← 移過來 →', intro: true });</script>
 <script>
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// 開場：哪一段文字走到畫面中線，主圖就亮哪一層
+const hero = FIG.mount(document.getElementById('hero'), 'frame', { rest: '← 移過來 →', intro: true });
+const steps = [...document.querySelectorAll('#story .step')];
+let now = null;
+const pick = el => {
+  if (el === now) return; now = el;
+  steps.forEach(s => s.classList.toggle('on', s === el));
+  const layer = el.dataset.layer || null;
+  if (layer) hero.stopIntro();
+  hero.point(layer);
+};
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) pick(e.target); }), { rootMargin: '-48% 0px -48% 0px' });
+steps.forEach(s => io.observe(s));
+</script>
+<script>
+// 捲進畫面時輕輕浮起
+const rise = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rise.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+const watch = el => calm ? el.classList.add('in') : rise.observe(el);
+document.querySelectorAll('.reveal').forEach(watch);
+
 SITE.load('').then(([WORKS, FP]) => {
-  const host = document.getElementById('works');
+  const grid = document.getElementById('grid');
+  const total = WORKS.reduce((a, w) => a + FP[w.id].dur, 0);
+  document.getElementById('stat').textContent = `${WORKS.length} 支片 · 共 ${Math.floor(total / 60)} 分 ${Math.round(total % 60)} 秒 · 每一幀都是代碼`;
   // 風格篩選：從作品資料自動長出按鈕
   const bar = document.getElementById('filters'), styles = [...new Set(WORKS.map(w => w.style))];
   const mk = (label, key, n) => { const b = document.createElement('button'); b.type = 'button'; b.dataset.key = key; b.setAttribute('aria-pressed', key === '*'); b.innerHTML = `${label}<span>${n}</span>`; bar.appendChild(b); };
   mk('全部', '*', WORKS.length); styles.forEach(st => mk(st, st, WORKS.filter(w => w.style === st).length));
-  const apply = key => { bar.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === key)); host.querySelectorAll('.plate').forEach(p => { p.hidden = key !== '*' && p.dataset.style !== key; }); try { history.replaceState(null, '', key === '*' ? location.pathname : '?style=' + encodeURIComponent(key)); } catch (e) {} };
+  const apply = key => { bar.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === key)); grid.querySelectorAll('.card').forEach(p => { p.hidden = key !== '*' && p.dataset.style !== key; }); try { history.replaceState(null, '', key === '*' ? location.pathname : '?style=' + encodeURIComponent(key) + '#works'); } catch (e) {} };
   bar.addEventListener('click', e => { const b = e.target.closest('button'); if (b) apply(b.dataset.key); });
-  WORKS.forEach(w => {
-    const el = document.createElement('article'); el.className = 'plate'; el.dataset.style = w.style;
-    el.innerHTML = SITE.plateHTML(w, '') + `<dl class="spec">${w.spec.map(([a, b]) => `<dt>${SITE.esc(a)}</dt><dd>${SITE.esc(b)}</dd>`).join('')}</dl>`;
-    host.appendChild(el); SITE.mount(el, w, FP[w.id]);
+  WORKS.forEach((w, i) => {
+    const D = FP[w.id].dur, n = w.chapters.length;
+    const a = document.createElement('a'); a.className = 'card reveal'; a.href = `works/${w.id}/`; a.dataset.style = w.style; a.style.setProperty('--d', i * 90 + 'ms');
+    a.innerHTML = `
+      <div class="card-head"><span>${w.fig}</span><span><span class="style-tag">${SITE.esc(w.style)}</span>　${w.date}</span></div>
+      <div class="card-stage"><img src="media/${w.id}.webp" alt="${SITE.esc(w.title)}的畫面" loading="lazy" decoding="async"><video muted playsinline preload="none"></video><span class="scrub"></span></div>
+      <div class="card-body"><h3>${SITE.esc(w.title)}</h3><div class="en">${SITE.esc(w.en)}</div><p>${SITE.esc(w.blurb)}</p></div>
+      <div class="card-go"><span>看這支片</span><span class="meta">${D.toFixed(0)} 秒 · ${n} 段</span><span class="arrow" aria-hidden="true">→</span></div>`;
+    grid.appendChild(a); watch(a);
+    // 滑過畫面＝無聲預覽：游標在哪，片子就在哪；離開就回到封面
+    const stage = a.querySelector('.card-stage'), v = stage.querySelector('video'), bar2 = stage.querySelector('.scrub');
+    stage.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      const r = stage.getBoundingClientRect(), f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      bar2.style.transform = `scaleX(${f})`; stage.classList.add('live');
+      if (!v.src) v.src = `media/${w.id}.mp4`;
+      const go = () => { v.currentTime = f * (D - .05); };
+      if (v.readyState >= 1) go(); else v.addEventListener('loadedmetadata', go, { once: true });
+    });
+    stage.addEventListener('pointerleave', () => { stage.classList.remove('live'); bar2.style.transform = 'scaleX(0)'; });
   });
   const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
 });

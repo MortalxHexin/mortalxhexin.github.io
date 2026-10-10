@@ -28,9 +28,11 @@ const FIG = (() => {
     const handle = fig.mount({ stage, svg, read }, fig.range[1]);
     if (!text) read.textContent = 'rest';
     // 第一次出現時，看不見的手自己走一圈給你看，你的手一進來它就讓開
+    let lap = null;
     if (opts.intro && fig.tour && !HL.reducedMotion()) {
-      const lap = HL.tour(stage, fig.tour, i => { if (fig.tour[i] === null) lap.stop(); });
+      lap = HL.tour(stage, fig.tour, i => { if (fig.tour[i] === null) stopIntro(); });
     }
+    function stopIntro() { if (lap) { lap.stop(); lap = null; } }
     // 假裝游標停在 viewBox 的某一點（讓圖跟著影片走時用）
     const ghost = (type, p) => {
       const r = stage.getBoundingClientRect();
@@ -45,10 +47,15 @@ const FIG = (() => {
       for (let y = 10; y < 320; y += 8) for (let x = 10; x < 400; x += 8) {
         ghost('pointermove', [x, y]);
         const m = /^\d+ · (.+)$/.exec(text); if (!m) continue;
-        const a = acc[m[1]] || (acc[m[1]] = [0, 0, 0]); a[0] += x; a[1] += y; a[2]++;
+        (acc[m[1]] || (acc[m[1]] = [])).push([x, y]);
       }
       ghost('pointerleave');
-      where = {}; for (const k in acc) where[k] = [acc[k][0] / acc[k][2], acc[k][1] / acc[k][2]];
+      // 取最靠近中心的那個取樣點：一定真的指得到
+      where = {};
+      for (const k in acc) {
+        const ps = acc[k], cx = ps.reduce((t, p) => t + p[0], 0) / ps.length, cy = ps.reduce((t, p) => t + p[1], 0) / ps.length;
+        where[k] = ps.reduce((b, p) => Math.hypot(p[0] - cx, p[1] - cy) < Math.hypot(b[0] - cx, b[1] - cy) ? p : b);
+      }
       return where;
     };
     let hand = false;
@@ -61,7 +68,7 @@ const FIG = (() => {
       const p = anchors()[label];
       if (p) ghost('pointermove', p); // 圖上沒有的段落（例如「安靜」）就停在上一格
     };
-    return { stage, handle, point, get text() { return text; } };
+    return { stage, handle, point, stopIntro, get text() { return text; } };
   }
   return { mount };
 })();
