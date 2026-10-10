@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>感動的幸福 · 代碼影像</title>
+<meta name="description" content="每一幀都由代碼畫成的短片作品集。Short films where every frame is drawn in code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --page: #E9ECEC;
+  --plate: #F7F8F8;
+  --ink: #1D2125;
+  --dim: #69737A;
+  --line: #C3CACE;
+  --faint: #DCE1E3;
+  --signal: #2F5BFF;
+  --sans: "IBM Plex Sans", "Noto Sans TC", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", "Noto Sans TC", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #15191C; --plate: #1C2126; --ink: #E6EAEC; --dim: #8D979E; --line: #3A434A; --faint: #283037; --signal: #7C98FF; }
+}
+:root[data-theme="dark"] { --page: #15191C; --plate: #1C2126; --ink: #E6EAEC; --dim: #8D979E; --line: #3A434A; --faint: #283037; --signal: #7C98FF; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-weight: 300; line-height: 1.6; }
+a { color: inherit; }
+:focus-visible { outline: 1.5px solid var(--signal); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+header.top { display: flex; justify-content: space-between; align-items: baseline; padding: 26px 0 0; font-size: 14px; }
+.mark { font-weight: 500; letter-spacing: .02em; text-decoration: none; }
+.mark span { color: var(--dim); font-family: var(--mono); font-size: 12px; margin-left: 10px; font-weight: 400; }
+nav.top a { text-decoration: none; color: var(--dim); margin-left: 22px; }
+nav.top a:hover { color: var(--ink); }
+
+.intro { padding: 96px 0 72px; max-width: 760px; }
+.intro h1 { font-family: "Noto Sans TC", var(--sans); font-weight: 300; font-size: clamp(34px, 5.2vw, 60px); line-height: 1.18; letter-spacing: .01em; margin: 0; }
+.intro p { margin: 22px 0 0; color: var(--dim); font-size: 16px; max-width: 34em; }
+.intro p .en { display: block; font-family: var(--mono); font-size: 12.5px; margin-top: 6px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 0 0 22px; font-size: 14px; }
+.filters button { font: inherit; background: none; border: 0; padding: 4px 0; color: var(--dim); cursor: pointer; border-bottom: 1.5px solid transparent; }
+.filters button:hover { color: var(--ink); }
+.filters button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--signal); }
+.filters button span { font-family: var(--mono); font-size: 11.5px; margin-left: 5px; color: var(--dim); }
+.plate[hidden] { display: none; }
+.style-tag { color: var(--ink); }
+.works { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; padding-bottom: 96px; }
+.plate { background: var(--plate); border-radius: 14px; padding: 18px 20px 16px; box-shadow: 0 0 0 1px var(--faint); display: flex; flex-direction: column; }
+.plate-head, .plate-foot { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.stage { position: relative; margin: 16px auto 0; width: min(100%, 300px); aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); cursor: ew-resize; }
+.stage video, .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.stage .hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; color: #fff; background: rgba(20,24,28,.55); padding: 3px 9px; border-radius: 999px; pointer-events: none; transition: opacity .3s; white-space: nowrap; }
+.stage:hover .hint, .stage.scrubbing .hint { opacity: 0; }
+
+.title { margin: 20px 0 0; }
+.title h2 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 24px; margin: 0; letter-spacing: .02em; }
+.title .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
+.title p { font-size: 14.5px; margin: 10px 0 0; max-width: 32em; }
+
+/* 指紋：音量波形＋章節刻度＋安靜段；游標位置＝畫面位置 */
+.print { position: relative; margin-top: 18px; height: 54px; cursor: ew-resize; touch-action: pan-y; }
+.print svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.print .lv { stroke: var(--ink); stroke-width: 1; opacity: .55; }
+.print .tick { stroke: var(--ink); stroke-width: 1; }
+.print .sil { fill: var(--faint); }
+.print .base { stroke: var(--line); stroke-width: 1; }
+.print .head { stroke: var(--signal); stroke-width: 1.25; }
+.print .chap.on { opacity: 1; }
+.readout { margin-top: 8px; font-family: var(--mono); font-size: 12px; display: flex; justify-content: space-between; color: var(--dim); }
+.readout b { font-weight: 500; color: var(--ink); }
+
+.actions { margin-top: 14px; display: flex; gap: 18px; font-size: 13.5px; }
+.actions button, .actions a { font: inherit; background: none; border: 0; padding: 0; color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.actions button:hover, .actions a:hover { text-decoration-color: var(--signal); }
+
+.spec { margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid var(--faint); display: grid; grid-template-columns: max-content 1fr; gap: 4px 18px; font-size: 13px; }
+.spec dt { color: var(--dim); }
+.spec dd { margin: 0; }
+
+footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.5px; color: var(--dim); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .intro { padding: 56px 0 40px; }
+  .works { grid-template-columns: 1fr; gap: 20px; }
+  .stage { width: min(100%, 320px); }
+  nav.top a { margin-left: 14px; }
+  .mark span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="./">感動的幸福<span>gandongdexingfu</span></a>
+    <nav class="top"><a href="#works">作品</a><a href="#about">關於</a><a href="https://github.com/gandongdexingfu/lemo-opuscar/tree/main/mine">做法</a></nav>
+  </header>
+
+  <section class="intro">
+    <h1>每一幀，<br>都由代碼畫成。</h1>
+    <p>照片交給 AI 生成，其餘的線條、動作、鏡頭和聲音，都是一行一行寫出來的。把游標移到畫面或下方的指紋上，就能在片中前後移動。
+      <span class="en">Short films drawn frame by frame in code. Move along a film's fingerprint to travel through it.</span></p>
+  </section>
+
+  <div class="filters" id="filters" role="toolbar" aria-label="按風格篩選"></div>
+  <main class="works" id="works"></main>
+
+  <footer id="about">
+    <span>照片由 AI 生成；畫面、音效與配樂由代碼生成。配樂取樣來自 CC0 樂器庫。</span>
+    <span>© 2026 gandongdexingfu</span>
+  </footer>
+</div>
+
+<script>
+const WORKS = [
+  { id: 'taiwan-sparrow', fig: 'Fig 1.2', style: '照片塗鴉', date: '2026.10', title: '小麻雀追袋記', en: 'The Sparrow and the Bag',
+    blurb: '一隻小麻雀追著被風吹走的紅白塑膠袋，穿過電鍋、珍奶、蚊香和藍白拖。十件台灣日常物件，每一件都變成了別的東西。',
+    spec: [['類型', '照片塗鴉片'], ['長度', '33 秒'], ['規格', '1080 × 1920 · 24 fps'], ['照片', 'ChatGPT 生成，10 件'], ['畫面', 'canvas 代碼手繪'], ['配樂', '原創樂譜，取樣演奏']],
+    chapters: [[0,'早餐盤'],[3.6,'電鍋'],[6.0,'蒸籠'],[8.4,'珍奶'],[11.4,'蚊香'],[13.2,'塑膠凳'],[15.0,'藍白拖'],[18.6,'安靜'],[19.4,'電扇'],[21.6,'彈珠台'],[24.0,'安靜'],[24.8,'紅白袋'],[27.2,'台灣生活圖鑑']],
+    how: 'https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/routes/照片塗鴉片.md' },
+  { id: 'light-evolution', fig: 'Fig 1.1', style: '寫實演變', date: '2026.10', title: '光的演變', en: 'Evolution of Light',
+    blurb: '從一堆火到一盞智慧燈，十一個時代的光在同一面牆前依序點亮，最後縮成地球上的城市燈火。',
+    spec: [['類型', '寫實照片演變片'], ['長度', '91.6 秒'], ['規格', '1080 × 1920 · 30 fps'], ['照片', 'ChatGPT 生成，25 張'], ['畫面', '代碼合成與運鏡'], ['配樂', 'Gemini 生成']],
+    chapters: [[0,'序幕 火柴'],[3.0,'火'],[9.5,'陶土油燈'],[16.0,'蜂蠟蠟燭'],[22.5,'阿岡燈'],[29.0,'煤氣燈'],[35.5,'彩蛋 火柴'],[38.7,'煤油燈'],[45.2,'白熾燈泡'],[51.7,'霓虹燈'],[58.2,'日光燈'],[64.7,'白光 LED'],[71.2,'智慧照明'],[77.7,'地球']],
+    how: 'https://github.com/gandongdexingfu/lemo-opuscar/blob/main/mine/routes/寫實照片演變片.md' },
+];
+const fmt = t => { const m = Math.floor(t / 60), s = (t % 60).toFixed(1).padStart(4, '0'); return `${String(m).padStart(2, '0')}:${s}`; };
+const NS = 'http://www.w3.org/2000/svg';
+
+fetch('media/fingerprints.json').then(r => r.json()).then(FP => {
+  const host = document.getElementById('works');
+  // 風格篩選：從作品資料自動長出按鈕，新增作品時不用改這裡
+  const bar = document.getElementById('filters'), styles = [...new Set(WORKS.map(w => w.style))];
+  const mk = (label, key, n) => { const b = document.createElement('button'); b.type = 'button'; b.dataset.key = key; b.setAttribute('aria-pressed', key === '*'); b.innerHTML = `${label}<span>${n}</span>`; bar.appendChild(b); };
+  mk('全部', '*', WORKS.length); styles.forEach(st => mk(st, st, WORKS.filter(w => w.style === st).length));
+  const apply = key => { bar.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === key)); document.querySelectorAll('.plate').forEach(p => { p.hidden = key !== '*' && p.dataset.style !== key; }); try { history.replaceState(null, '', key === '*' ? location.pathname : '?style=' + encodeURIComponent(key)); } catch (e) {} };
+  bar.addEventListener('click', e => { const b = e.target.closest('button'); if (b) apply(b.dataset.key); });
+  WORKS.forEach(w => {
+    const fp = FP[w.id], D = fp.dur;
+    const el = document.createElement('article'); el.className = 'plate';
+    el.dataset.style = w.style;
+    el.innerHTML = `
+      <div class="plate-head"><span>${w.fig}</span><span><span class="style-tag">${w.style}</span>　${w.date}</span></div>
+      <div class="stage" tabindex="0" aria-label="${w.title}：左右移動以瀏覽畫面">
+        <img src="media/${w.id}.jpg" alt="">
+        <video src="media/${w.id}.mp4" muted playsinline preload="metadata" poster="media/${w.id}.jpg"></video>
+        <span class="hint">左右移動瀏覽</span>
+      </div>
+      <div class="title"><h2>${w.title}</h2><div class="en">${w.en}</div><p>${w.blurb}</p></div>
+      <div class="print" aria-hidden="true"><svg viewBox="0 0 1000 54" preserveAspectRatio="none"></svg></div>
+      <div class="readout"><span><b class="t">00:00.0</b> <span class="c">${w.chapters[0][1]}</span></span><span>${D.toFixed(1)} s</span></div>
+      <div class="actions"><button class="play">播放（有聲）</button><a href="${w.how}">看做法</a></div>
+      <dl class="spec">${w.spec.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>`;
+    host.appendChild(el);
+
+    // 指紋
+    const svg = el.querySelector('svg'), X = t => t / D * 1000;
+    fp.silences.forEach(([a, b]) => { const r = document.createElementNS(NS, 'rect'); r.setAttribute('class', 'sil'); r.setAttribute('x', X(a)); r.setAttribute('width', Math.max(2, X(b) - X(a))); r.setAttribute('y', 6); r.setAttribute('height', 38); svg.appendChild(r); });
+    const n = fp.level.length; let d = '';
+    fp.level.forEach((v, i) => { const x = (i + .5) / n * 1000, h = 2 + v * 34; d += `M${x.toFixed(1)} ${25 - h / 2}V${25 + h / 2}`; });
+    const p = document.createElementNS(NS, 'path'); p.setAttribute('class', 'lv'); p.setAttribute('d', d); svg.appendChild(p);
+    const base = document.createElementNS(NS, 'line'); base.setAttribute('class', 'base'); Object.entries({ x1: 0, x2: 1000, y1: 50, y2: 50 }).forEach(([k, v]) => base.setAttribute(k, v)); svg.appendChild(base);
+    w.chapters.forEach(([t]) => { const l = document.createElementNS(NS, 'line'); l.setAttribute('class', 'tick'); Object.entries({ x1: X(t), x2: X(t), y1: 46, y2: 54 }).forEach(([k, v]) => l.setAttribute(k, v)); svg.appendChild(l); });
+    const head = document.createElementNS(NS, 'line'); head.setAttribute('class', 'head'); Object.entries({ x1: 0, x2: 0, y1: 0, y2: 54 }).forEach(([k, v]) => head.setAttribute(k, v)); svg.appendChild(head);
+
+    const video = el.querySelector('video'), stage = el.querySelector('.stage'), tOut = el.querySelector('.t'), cOut = el.querySelector('.c');
+    const chapterAt = t => { let c = w.chapters[0][1]; for (const [a, name] of w.chapters) if (t >= a) c = name; return c; };
+    const show = t => { head.setAttribute('x1', X(t)); head.setAttribute('x2', X(t)); tOut.textContent = fmt(t); cOut.textContent = chapterAt(t); };
+    const seek = t => { t = Math.max(0, Math.min(D - .05, t)); show(t); if (video.readyState >= 1 && video.paused) video.currentTime = t; };
+    const fromX = (e, box) => { const r = box.getBoundingClientRect(), x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left; return x / r.width * D; };
+    [stage, el.querySelector('.print')].forEach(box => {
+      box.addEventListener('pointermove', e => { if (!video.paused) return; stage.classList.add('scrubbing'); seek(fromX(e, box)); });
+      box.addEventListener('pointerleave', () => stage.classList.remove('scrubbing'));
+    });
+    stage.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime + (e.key === 'ArrowRight' ? 1 : -1)); } });
+    const btn = el.querySelector('.play');
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('video').forEach(v => { if (v !== video && !v.paused) { v.pause(); v.muted = true; v.closest('.plate').querySelector('.play').textContent = '播放（有聲）'; } });
+      if (video.paused) { video.muted = false; video.play(); btn.textContent = '暫停'; } else { video.pause(); video.muted = true; btn.textContent = '播放（有聲）'; }
+    });
+    video.addEventListener('timeupdate', () => { if (!video.paused) show(video.currentTime); });
+    video.addEventListener('ended', () => { btn.textContent = '播放（有聲）'; video.muted = true; });
+    const q = new URLSearchParams(location.search).get('at'); if (q) show(D * +q);
+  });
+  const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
+});
+</script>
+</body>
+</html>
