@@ -325,11 +325,8 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .proj-text h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 28px; margin: 14px 0 0; letter-spacing: .02em; }
 .proj-text .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
 .proj-text p { font-size: 14.5px; margin: 12px 0 0; }
-.p-go-link { display: flex; align-items: baseline; gap: 14px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--faint); text-decoration: none; color: inherit; font-size: 14.5px; }
+.p-go-link { color: var(--dim); display: flex; align-items: baseline; gap: 14px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--faint); font-size: 14px; }
 .p-go-link .meta { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-left: auto; }
-.p-go-link .arrow { color: var(--signal); transition: transform .5s var(--ease); }
-.p-go-link:hover .arrow { transform: translateX(5px); }
-.p-go-link:hover .p-go { color: var(--signal); }
 .proj-text.blank .arrow { display: none; }
 .proj-text.blank .p-go-link { pointer-events: none; }
 @media (min-width: 901px) { .gallery .filters, .gallery .works { display: none; } }
@@ -347,3 +344,9 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .courier rect + rect { fill: none; }
 .hero-fig { transition: opacity .4s var(--ease); }
 .hero-fig[style*="--gone: 1"] .fig-stage { opacity: .35; transition: opacity .4s; }
+
+/* 幕是唯一的入口：滑上去，邊緣亮成訊號藍，底部浮出「看這支片 →」 */
+.screen-go { position: absolute; left: 50%; bottom: 16px; transform: translate(-50%, 6px); padding: 5px 12px; border-radius: 999px; font-size: 12.5px; letter-spacing: .04em; color: #fff; white-space: nowrap;
+  background: rgba(16, 20, 24, .5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .35s var(--ease), transform .35s var(--ease); pointer-events: none; }
+.screen[href]:hover .screen-go { opacity: 1; transform: translate(-50%, 0); }
+.screen[href]:hover { box-shadow: 0 0 0 1.5px var(--signal), 0 0 70px 4px rgb(var(--beam) / .32), 0 30px 60px -30px rgba(15, 25, 50, .5); }

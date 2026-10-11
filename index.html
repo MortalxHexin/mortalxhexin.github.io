@@ -70,7 +70,7 @@
           </figure>
         </div>
         <div class="float-shadow" aria-hidden="true"></div>
-        <p class="proj-hint">滑過看一看，點一下送上幕，再點一下進入；也可以按住拖著轉。</p>
+        <p class="proj-hint">滑過看一看，點一下送上幕，點幕進入；也可以按住拖著轉。</p>
       </div>
       <svg class="beam" id="beam" aria-hidden="true"><defs>
         <filter id="bW" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="18"/></filter>
@@ -88,12 +88,13 @@
           <img class="ghost" alt="" aria-hidden="true">
           <span class="grain" aria-hidden="true"></span>
           <span class="blank-frame" aria-hidden="true"></span>
+          <span class="screen-go" aria-hidden="true">看這支片 →</span>
         </a>
         <div class="screen-read" id="screenRead">SLIDE 01 · 00:00 / 00:00 · 24 fps</div>
         <div class="proj-text" id="peek">
           <div class="card-head"><span class="p-fig"></span><span class="p-tag"></span></div>
           <h3 class="p-title"></h3><div class="en p-en"></div><p class="p-blurb"></p>
-          <a class="p-go-link" href="#"><span class="p-go">看這支片</span><span class="meta p-meta"></span><span class="arrow" aria-hidden="true">→</span></a>
+          <div class="p-go-link"><span class="p-go">點幕進入</span><span class="meta p-meta"></span></div>
         </div>
       </div>
     </div>
@@ -173,24 +174,24 @@ SITE.load('').then(([WORKS, FP]) => {
   // —— 幻燈機：轉盤上一支作品一張幻燈片（新到舊），空位是「製作中」；閱讀位置的那張投在幕上 ——
   window.BIN = WORKS.map(w => [w.title, FP[w.id].dur, w.thumb]);
   const shelf = document.getElementById('shelf'), screen = document.getElementById('screen'), vid = screen.querySelector('video'), ghost = screen.querySelector('.ghost');
-  const peek = document.getElementById('peek'), $ = c => peek.querySelector(c), sread = document.getElementById('screenRead'), go = peek.querySelector('.p-go-link');
+  const peek = document.getElementById('peek'), $ = c => peek.querySelector(c), sread = document.getElementById('screenRead'), go = null;
   const mmss = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
   let onScreen = -2, slideNo = 0;
   const text = i => {
     const w = WORKS[i];
     peek.classList.toggle('blank', !w); screen.classList.toggle('blank', !w);
     if (!w) {
-      [screen, go].forEach(a => a.removeAttribute('href'));
+      screen.removeAttribute('href');
       $('.p-fig').textContent = 'Fig —'; $('.p-tag').textContent = '製作中';
       $('.p-title').textContent = '下一支片'; $('.p-en').textContent = 'Coming next';
       $('.p-blurb').textContent = '還在代碼裡，沒被畫出來。這一格先空著，留給下一支片。';
       $('.p-go').textContent = '敬請期待'; $('.p-meta').textContent = '';
       return;
     }
-    [screen, go].forEach(a => a.href = `works/${w.id}/`);
+    screen.href = `works/${w.id}/`;
     $('.p-fig').textContent = w.fig; $('.p-tag').textContent = `${w.style}　${w.date}`;
     $('.p-title').textContent = w.title; $('.p-en').textContent = w.en; $('.p-blurb').textContent = w.blurb;
-    $('.p-go').textContent = '看這支片'; $('.p-meta').textContent = `${FP[w.id].dur.toFixed(0)} 秒 · ${w.chapters.length} 段`;
+    $('.p-go').textContent = '點幕進入'; $('.p-meta').textContent = `${FP[w.id].dur.toFixed(0)} 秒 · ${w.chapters.length} 段`;
   };
   const readout = () => { const w = WORKS[onScreen], D = w ? FP[w.id].dur : 0; sread.textContent = `SLIDE ${String(slideNo).padStart(2, '0')} · ${mmss(w ? vid.currentTime : 0)} / ${mmss(D)} · 24 fps`; };
   vid.addEventListener('timeupdate', readout);
@@ -223,7 +224,7 @@ SITE.load('').then(([WORKS, FP]) => {
     } });
     const st = tray.stage;
     // 不用瀏覽器的 click：按下到放開之間轉盤在轉、幻燈片前後順序重排，瀏覽器會把那次點擊丟掉。
-    // 改成自己記：按下時選中哪一張就立刻送上幕；按下的正是已經在幕上的那張，放開時才進入。
+    // 改成自己記：按下時選中哪一張就立刻送上幕。轉盤只負責選片；要進入作品頁，點幕。
     let downIdx = -1, wasRead = false;
     st.addEventListener('pointerdown', e => {
       dragged = false; x0 = e.clientX;
@@ -231,10 +232,7 @@ SITE.load('').then(([WORKS, FP]) => {
       if (downIdx >= 0 && !wasRead) { atRead = downIdx; project(downIdx); }
     });
     st.addEventListener('pointermove', e => { if (e.buttons && Math.abs(e.clientX - x0) > 6) dragged = true; });
-    addEventListener('pointerup', () => {
-      if (downIdx >= 0 && wasRead && !dragged && WORKS[downIdx]) enter();
-      downIdx = -1;
-    });
+    addEventListener('pointerup', () => { downIdx = -1; });
     // 光束：從閱讀位置那張幻燈片的鏡頭射出，向幕發散。三層：外圈的散光、光錐本體、中心最亮的一束；
     // 越靠近鏡頭越亮，越遠越淡；邊緣是糊的；光裡有灰塵在飄；光的顏色跟著幕上的畫面變，幕的四周被照亮
     const beam = document.getElementById('beam'), dust = document.getElementById('dust'), dx = dust.getContext('2d');
