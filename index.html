@@ -285,25 +285,30 @@ SITE.load('').then(([WORKS, FP]) => {
       courier.innerHTML = '<svg viewBox="0 0 54 96"><rect x="1" y="1" width="52" height="94" rx="5"/><rect x="10" y="6" width="34" height="84" rx="2"/>' +
         Array.from({ length: 9 }, (_, k) => `<rect x="3" y="${8 + k * 9.6}" width="4" height="5" rx="1"/><rect x="47" y="${8 + k * 9.6}" width="4" height="5" rx="1"/>`).join('') + '</svg>';
       document.body.appendChild(courier);
-      let landed = false;
-      const fly = () => {
-        const sb = story.getBoundingClientRect(), pb = shelf.getBoundingClientRect(), vh = innerHeight;
-        // 起點：開場區的底邊離開畫面中線；終點：幻燈機走到畫面中間
-        const a = sb.bottom - vh * 0.55, z = pb.top + pb.height / 2 - vh * 0.5, p = Math.min(1, Math.max(0, a / (a - z || 1)));
-        const on = sb.bottom < vh * 0.62 && p < 1, e0 = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-        courier.style.opacity = on ? Math.min(1, (1 - e0) / .14) : 0; // 最後一小段淡出，融進幻燈片，不會停在半路擋住它
-        heroFig.style.setProperty('--gone', on || p >= 1 ? 1 : 0);
-        if (on) {
-          const f = heroFig.querySelector('.fig-stage').getBoundingClientRect(), m = st.querySelector('svg [class~="dot"]').getBoundingClientRect();
-          const x0 = f.left + f.width * 0.42, y0 = Math.max(110, f.top + f.height * 0.5), x1 = m.left + m.width / 2, y1 = m.top + st.getBoundingClientRect().height * 0.13; // 起點跟著主圖，但不讓它跑出畫面上緣
-          const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, cx = (x0 + x1) / 2 - 90, cy = Math.max(90, Math.min(y0, y1) - 70);
-          const x = (1 - e) ** 2 * x0 + 2 * (1 - e) * e * cx + e * e * x1, y = (1 - e) ** 2 * y0 + 2 * (1 - e) * e * cy + e * e * y1;
-          courier.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${1.25 - e * .85}) rotate(${-14 * Math.sin(e * Math.PI)}deg)`;
-        }
-        if (p >= 1 && !landed) { landed = true; screen.classList.remove('flick'); void screen.offsetWidth; screen.classList.add('flick'); }
-        if (p < .98) landed = false;
+      // 一次性的飛行：捲過開場結尾的那一刻自己飛完（約 1.1 秒），落地就消失；中途停下也不會留在半空。
+      // 往回捲到開場裡面，下次再往下捲會重新飛一次。
+      let state = 'ready', t0 = 0;
+      const DUR = 1100;
+      const frame = now => {
+        if (state !== 'flying') return;
+        const p = Math.min(1, (now - t0) / DUR), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        const f = heroFig.querySelector('.fig-stage').getBoundingClientRect(), m = st.querySelector('svg [class~="dot"]').getBoundingClientRect();
+        const x0 = f.left + f.width * 0.42, y0 = Math.max(110, f.top + f.height * 0.5), x1 = m.left + m.width / 2, y1 = m.top + st.getBoundingClientRect().height * 0.13;
+        const cx = (x0 + x1) / 2 - 90, cy = Math.max(90, Math.min(y0, y1) - 70);
+        const x = (1 - e) ** 2 * x0 + 2 * (1 - e) * e * cx + e * e * x1, y = (1 - e) ** 2 * y0 + 2 * (1 - e) * e * cy + e * e * y1;
+        courier.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${1.25 - e * .85}) rotate(${-14 * Math.sin(e * Math.PI)}deg)`;
+        courier.style.opacity = Math.min(1, p / .08, (1 - e) / .14);
+        if (p < 1) return requestAnimationFrame(frame);
+        state = 'done'; courier.style.opacity = 0;
+        screen.classList.remove('flick'); void screen.offsetWidth; screen.classList.add('flick');
       };
-      addEventListener('scroll', () => requestAnimationFrame(fly), { passive: true }); fly();
+      const watch = () => {
+        const sb = story.getBoundingClientRect(), pb = shelf.getBoundingClientRect(), vh = innerHeight;
+        heroFig.style.setProperty('--gone', sb.bottom < vh * 0.62 ? 1 : 0);
+        if (state === 'ready' && sb.bottom < vh * 0.6 && pb.top < vh) { state = 'flying'; t0 = performance.now(); requestAnimationFrame(frame); }
+        if (state === 'done' && sb.bottom > vh * 0.85) { state = 'ready'; courier.style.opacity = 0; }
+      };
+      addEventListener('scroll', watch, { passive: true }); watch();
     }
   });
   // 進入作品頁：支援的瀏覽器裡，幕會直接放大成作品頁的播放器
