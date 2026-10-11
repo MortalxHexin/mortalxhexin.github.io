@@ -72,7 +72,16 @@
         <div class="float-shadow" aria-hidden="true"></div>
         <p class="proj-hint">滑過看一看，點一下送上幕，再點一下進入；也可以按住拖著轉。</p>
       </div>
-      <svg class="beam" id="beam" aria-hidden="true"><defs><linearGradient id="beamFill" x1="0" x2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".16"/><stop offset="1" stop-color="var(--signal)" stop-opacity=".03"/></linearGradient></defs><path class="beam-body"/><path class="beam-edge"/></svg>
+      <svg class="beam" id="beam" aria-hidden="true"><defs>
+        <filter id="bW" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="18"/></filter>
+        <filter id="bM" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="7"/></filter>
+        <filter id="bS" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="3"/></filter>
+        <linearGradient id="gHalo" gradientUnits="userSpaceOnUse"><stop offset="0" class="s" style="stop-opacity:.26"/><stop offset=".55" class="s" style="stop-opacity:.07"/><stop offset="1" class="s" style="stop-opacity:.05"/></linearGradient>
+        <linearGradient id="gBody" gradientUnits="userSpaceOnUse"><stop offset="0" class="s" style="stop-opacity:.55"/><stop offset=".4" class="s" style="stop-opacity:.2"/><stop offset="1" class="s" style="stop-opacity:.1"/></linearGradient>
+        <linearGradient id="gCore" gradientUnits="userSpaceOnUse"><stop offset="0" class="s" style="stop-opacity:.85"/><stop offset=".35" class="s" style="stop-opacity:.18"/><stop offset="1" class="s" style="stop-opacity:0"/></linearGradient>
+        <radialGradient id="gSrc"><stop offset="0" style="stop-color:#fff;stop-opacity:.95"/><stop offset=".35" class="s" style="stop-opacity:.55"/><stop offset="1" class="s" style="stop-opacity:0"/></radialGradient>
+      </defs><g class="beam-light"><path class="halo" fill="url(#gHalo)" filter="url(#bW)"/><path class="body" fill="url(#gBody)" filter="url(#bM)"/><path class="core" fill="url(#gCore)" filter="url(#bS)"/><circle class="src" r="16" fill="url(#gSrc)"/></g><path class="beam-edge"/></svg>
+      <canvas class="dust" id="dust" aria-hidden="true"></canvas>
       <div class="proj-screen">
         <a class="screen" id="screen" href="#" aria-label="進入這支片">
           <video muted playsinline loop preload="none"></video>
@@ -188,7 +197,7 @@ SITE.load('').then(([WORKS, FP]) => {
   // 換片：幕先暗一下，換上新片，再帶一點閃爍亮起來（像真的幻燈機）
   const project = i => {
     if (i === onScreen) return;
-    onScreen = i; slideNo = i + 1;
+    onScreen = i; slideNo = i + 1; ghost.classList.remove('on');
     screen.classList.remove('flick'); screen.classList.add('dark');
     setTimeout(() => {
       const w = WORKS[i];
@@ -222,17 +231,48 @@ SITE.load('').then(([WORKS, FP]) => {
       if (i === atRead && WORKS[i]) { enter(); return; }
       atRead = i; project(i);
     });
-    // 光束：從閱讀位置那張幻燈片（轉盤上亮點的下方）射向幕的左緣，跟著懸浮一起動
-    const beam = document.getElementById('beam'), body = beam.querySelector('.beam-body'), edge = beam.querySelector('.beam-edge');
-    const mark = st.querySelector('svg .dot, svg ellipse.dot') || st.querySelector('svg [class~="dot"]');
-    let live = false;
-    const aim = () => {
+    // 光束：從閱讀位置那張幻燈片的鏡頭射出，向幕發散。三層：外圈的散光、光錐本體、中心最亮的一束；
+    // 越靠近鏡頭越亮，越遠越淡；邊緣是糊的；光裡有灰塵在飄；光的顏色跟著幕上的畫面變，幕的四周被照亮
+    const beam = document.getElementById('beam'), dust = document.getElementById('dust'), dx = dust.getContext('2d');
+    const halo = beam.querySelector('.halo'), body = beam.querySelector('.body'), core = beam.querySelector('.core'), src = beam.querySelector('.src'), edge = beam.querySelector('.beam-edge');
+    const grads = ['gHalo', 'gBody', 'gCore'].map(id => document.getElementById(id));
+    let live = false, flick = 1, flickT = 0, geo = null;
+    const motes = Array.from({ length: 70 }, () => ({ s: Math.random(), w: Math.random() * 2 - 1, v: .02 + Math.random() * .05, ph: Math.random() * 6.28, r: .5 + Math.random() * 1.3 }));
+    const tint = document.createElement('canvas'); tint.width = 6; tint.height = 10; const tx = tint.getContext('2d', { willReadFrequently: true });
+    let tintT = 0;
+    const sampleTint = now => {
+      if (now - tintT < 450 || vid.paused || vid.readyState < 2) return; tintT = now;
+      try {
+        tx.drawImage(vid, 0, 0, 6, 10); const d = tx.getImageData(0, 0, 6, 10).data; let r = 0, g = 0, b = 0;
+        for (let k = 0; k < d.length; k += 4) { r += d[k]; g += d[k + 1]; b += d[k + 2]; }
+        const n = d.length / 4, mix = (c, w) => Math.round(c / n * .45 + w * .55); // 一半是畫面的顏色，一半是燈泡的暖白
+        shelf.style.setProperty('--beam', `${mix(r, 255)} ${mix(g, 240)} ${mix(b, 214)}`);
+      } catch (e) {}
+    };
+    const aim = now => {
       if (!live) return;
-      const b = shelf.getBoundingClientRect(), s = st.getBoundingClientRect(), m = (st.querySelector('svg [class~="dot"]') || mark).getBoundingClientRect(), r = screen.getBoundingClientRect();
-      const ox = m.left + m.width / 2 - b.left, oy = m.top - b.top + s.height * 0.13, sx = r.left - b.left + 4, t = r.top - b.top + 6, u = r.bottom - b.top - 6;
+      const b = shelf.getBoundingClientRect(), s = st.getBoundingClientRect(), m = st.querySelector('svg [class~="dot"]').getBoundingClientRect(), r = screen.getBoundingClientRect();
+      const ox = m.left + m.width / 2 - b.left, oy = m.top - b.top + s.height * 0.13, sx = r.left - b.left + 3, t = r.top - b.top + 4, u = r.bottom - b.top - 4, my = (t + u) / 2;
+      if (now - flickT > 90) { flickT = now; flick = calm ? 1 : .93 + Math.random() * .07; } // 燈泡的電流不穩：光輕輕地抖
       beam.setAttribute('viewBox', `0 0 ${b.width} ${b.height}`);
-      body.setAttribute('d', `M${ox} ${oy - 7}L${sx} ${t}L${sx} ${u}L${ox} ${oy + 7}Z`);
-      edge.setAttribute('d', `M${ox} ${oy - 7}L${sx} ${t}M${ox} ${oy + 7}L${sx} ${u}M${ox} ${oy}L${sx} ${(t + u) / 2}`);
+      beam.style.opacity = flick;
+      grads.forEach(gr => { gr.setAttribute('x1', ox); gr.setAttribute('y1', oy); gr.setAttribute('x2', sx); gr.setAttribute('y2', my); });
+      const cone = (a, spread, over = 0) => `M${ox} ${oy - a}L${sx + over} ${t - spread}L${sx + over} ${u + spread}L${ox} ${oy + a}Z`;
+      halo.setAttribute('d', cone(16, 34, 30)); body.setAttribute('d', cone(5, 2)); core.setAttribute('d', `M${ox} ${oy - 2}L${sx} ${my - (u - t) * .22}L${sx} ${my + (u - t) * .22}L${ox} ${oy + 2}Z`);
+      src.setAttribute('cx', ox); src.setAttribute('cy', oy);
+      edge.setAttribute('d', `M${ox} ${oy - 5}L${sx} ${t}M${ox} ${oy + 5}L${sx} ${u}`);
+      // 灰塵：在光錐裡慢慢往幕的方向飄，靠中間的比較亮，一閃一閃
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      if (dust.width !== Math.round(b.width * dpr)) { dust.width = Math.round(b.width * dpr); dust.height = Math.round(b.height * dpr); }
+      dx.setTransform(dpr, 0, 0, dpr, 0, 0); dx.clearRect(0, 0, b.width, b.height);
+      const col = getComputedStyle(shelf).getPropertyValue('--beam').trim() || '255 240 214';
+      motes.forEach(q => {
+        if (!calm) { q.s += q.v / 60; q.ph += .03; if (q.s > 1) { q.s = 0; q.w = Math.random() * 2 - 1; } }
+        const ww = q.w + Math.sin(q.ph) * .06, x = ox + (sx - ox) * q.s, half = 5 + ((u - t) / 2 - 5) * q.s, y = oy + (my - oy) * q.s + ww * half;
+        const a = (1 - Math.abs(ww) * .7) * Math.sin(q.s * Math.PI) * (.35 + .35 * Math.sin(q.ph * 2.3)) * flick;
+        dx.fillStyle = `rgb(${col} / ${Math.max(0, a).toFixed(3)})`; dx.beginPath(); dx.arc(x, y, q.r, 0, 6.283); dx.fill();
+      });
+      sampleTint(now);
       requestAnimationFrame(aim);
     };
     new IntersectionObserver(es => es.forEach(e => { const was = live; live = e.isIntersecting; if (live && !was) requestAnimationFrame(aim); })).observe(shelf);
@@ -248,8 +288,8 @@ SITE.load('').then(([WORKS, FP]) => {
         const sb = story.getBoundingClientRect(), pb = shelf.getBoundingClientRect(), vh = innerHeight;
         // 起點：開場區的底邊離開畫面中線；終點：幻燈機走到畫面中間
         const a = sb.bottom - vh * 0.55, z = pb.top + pb.height / 2 - vh * 0.5, p = Math.min(1, Math.max(0, a / (a - z || 1)));
-        const on = sb.bottom < vh * 0.62 && p < 1;
-        courier.style.opacity = on ? 1 : 0;
+        const on = sb.bottom < vh * 0.62 && p < 1, e0 = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        courier.style.opacity = on ? Math.min(1, (1 - e0) / .14) : 0; // 最後一小段淡出，融進幻燈片，不會停在半路擋住它
         heroFig.style.setProperty('--gone', on || p >= 1 ? 1 : 0);
         if (on) {
           const f = heroFig.querySelector('.fig-stage').getBoundingClientRect(), m = st.querySelector('svg [class~="dot"]').getBoundingClientRect();

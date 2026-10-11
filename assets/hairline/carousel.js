@@ -60,7 +60,7 @@ function mount({ stage, svg, read }, value) {
 
   // the tray's turn, in slots: slide i stands at angle READ + (i - turn) * STEP
   const turn = spring(NEWEST, { eps: 0.0005 });
-  let sel = NEWEST, hov = -1, drag = null, over = false, last = NaN;
+  let sel = NEWEST, hov = -1, drag = null, over = false, last = NaN, lock = null; // lock: where a press chose a slide; it stays chosen until the pointer moves away
   const angle = (i, t) => READ + (i - t) * STEP;
   const quad = (i, t, lift, off) => {
     const a = angle(i, t), cx = Math.cos(a), cy = Math.sin(a), z0 = TH - 3 + lift;
@@ -130,16 +130,19 @@ function mount({ stage, svg, read }, value) {
         if (Math.abs(p[0] - drag.x0) > 4) drag.moved = true;
         if (drag.moved) { turn.t = drag.t0 - ((p[0] - drag.x0) / 400) * pull; hov = -1; sel = wrap(Math.round(turn.t)); settle(); return; }
       } else letGo();
+      // the tray turns under a pointer that has not moved: keep the slide it pressed until the hand moves on
+      if (lock && Math.hypot(p[0] - lock[0], p[1] - lock[1]) < 14) return;
+      lock = null;
       hov = pick(p); settle();
     },
     down: (p) => {
       over = true;
       const i = pick(p);
       drag = { x0: p[0], t0: turn.t, moved: false };
-      if (i >= 0) { choose(i); hov = i; }
+      if (i >= 0) { choose(i); hov = i; lock = p; }
       settle();
     },
-    leave: () => { over = false; hov = -1; if (drag) { turn.t = Math.round(turn.t); sel = wrap(turn.t); drag = null; } settle(); },
+    leave: () => { over = false; hov = -1; lock = null; if (drag) { turn.t = Math.round(turn.t); sel = wrap(turn.t); drag = null; } settle(); },
   }));
   settle();
   bag.add(() => svg.replaceChildren());
