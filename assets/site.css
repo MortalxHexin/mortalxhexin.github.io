@@ -277,30 +277,65 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 .stage.scrubbing .big-play:not(:hover) { opacity: .35; }
 .work .readout { margin-bottom: 2px; }
 
-/* —— 首頁：幻燈片轉盤＋預覽板（電腦版）—— */
-.shelf { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: stretch; margin-bottom: 96px; }
-.shelf-fig .fig-stage { cursor: grab; }
-.shelf-fig .fig-stage:active { cursor: grabbing; }
-.peek { position: relative; display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: 24px; align-items: center; text-decoration: none; color: inherit; background: var(--plate); border-radius: 14px; padding: 22px; box-shadow: 0 0 0 1px var(--faint); transition: box-shadow .5s var(--ease); }
-.peek:hover { box-shadow: 0 0 0 1px var(--signal), 0 24px 50px -28px rgba(15, 25, 50, .4); }
-.peek-cover { position: relative; aspect-ratio: 9 / 16; border-radius: 6px; overflow: hidden; background: var(--faint); }
-.peek-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.peek-blank { position: absolute; inset: 14px; border: 1px dashed var(--edge); border-radius: 4px; display: none; }
-.peek.blank .peek-cover img { display: none; }
-.peek.blank .peek-blank { display: block; }
-.peek.blank { cursor: default; }
-.peek.blank:hover { box-shadow: 0 0 0 1px var(--faint); }
-.peek.blank .arrow { display: none; }
-.peek .card-head { gap: 12px; }
-.peek h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 26px; margin: 14px 0 0; letter-spacing: .02em; }
-.peek .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
-.peek p { font-size: 14.5px; margin: 12px 0 0; }
-.peek .card-go { margin: 18px 0 0; padding: 14px 0 0; }
-.peek:hover .card-go .arrow { transform: translateX(5px); }
-.peek:hover .p-go { color: var(--signal); }
-.peek.swap .peek-cover, .peek.swap .peek-text { animation: peekIn .55s var(--ease) both; }
-.peek.swap .peek-text { animation-delay: .05s; }
-@keyframes peekIn { from { opacity: 0; transform: translateY(8px); } }
+/* —— 首頁：幻燈機（電腦版）——
+   轉盤懸在左邊、輕輕浮動；閱讀位置的幻燈片射出光束，打在右邊直式的幕上，幕裡無聲放著那支片 */
+.projector { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: center; margin: 8px 0 110px; }
+.proj-tray { position: relative; z-index: 2; }
+.fig.bare { background: none; box-shadow: none; padding: 0; }
+.fig.bare .fig-head { padding: 0 6px; }
+.fig.bare .fig-stage { margin: 0; cursor: grab; }
+.fig.bare .fig-stage:active { cursor: grabbing; }
+.float { animation: hover 6s ease-in-out 1.2s infinite; }
+@keyframes hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+.float-shadow { width: 60%; height: 24px; margin: -84px auto 0; border-radius: 50%; border: 1px dashed var(--edge); opacity: .55; animation: shadow 6s ease-in-out 1.2s infinite; }
+@keyframes shadow { 0%, 100% { transform: scale(1); opacity: .55; } 50% { transform: scale(.94); opacity: .38; } }
+.proj-hint { text-align: center; font-size: 12.5px; color: var(--dim); margin: 34px 0 0; }
+.beam { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
+.beam-body { fill: url(#beamFill); }
+.beam-edge { fill: none; stroke: var(--signal); stroke-width: .75; stroke-opacity: .35; stroke-dasharray: 2 5; }
+.proj-screen { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); column-gap: 26px; align-items: center; }
+.screen { position: relative; display: block; aspect-ratio: 9 / 16; border-radius: 4px; overflow: hidden; background: #0d1013; transform: perspective(900px) rotateY(-9deg); transform-origin: left center;
+  box-shadow: 0 0 0 1px var(--faint), 0 30px 60px -30px rgba(15, 25, 50, .5); transition: filter .16s; }
+.screen video, .screen .ghost { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.screen video { view-transition-name: film; }
+/* 投影的質感：暗角、邊緣微微散開、一層細顆粒 */
+.screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0, 0, 0, .45)); box-shadow: inset 0 0 18px 6px rgba(0, 0, 0, .35); }
+.grain { position: absolute; inset: -20%; pointer-events: none; opacity: .13; mix-blend-mode: overlay; animation: grain .9s steps(6) infinite;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-6%, 4%); } 66% { transform: translate(5%, -5%); } 100% { transform: translate(-3%, 6%); } }
+.ghost { opacity: 0; filter: blur(3px) saturate(.6); transition: opacity .35s var(--ease); }
+.ghost.on { opacity: .42; }
+.screen.dark { filter: brightness(.12); }
+.screen.flick { animation: flick .42s steps(1) both; }
+@keyframes flick { 0% { filter: brightness(.5); } 20% { filter: brightness(1.15); } 35% { filter: brightness(.8); } 55% { filter: brightness(1.05); } 100% { filter: none; } }
+.blank-frame { position: absolute; inset: 16px; border: 1px dashed rgba(255, 255, 255, .28); border-radius: 3px; display: none; }
+.screen.blank .blank-frame { display: block; }
+.screen.blank { cursor: default; }
+.screen-read { grid-column: 1; margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--dim); letter-spacing: .03em; white-space: nowrap; }
+.proj-text { grid-column: 2; grid-row: 1 / 3; }
+.proj-text .card-head { gap: 12px; }
+.proj-text h3 { font-family: "Noto Sans TC", var(--sans); font-weight: 400; font-size: 28px; margin: 14px 0 0; letter-spacing: .02em; }
+.proj-text .en { font-size: 14px; color: var(--dim); margin-top: 2px; }
+.proj-text p { font-size: 14.5px; margin: 12px 0 0; }
+.p-go-link { display: flex; align-items: baseline; gap: 14px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--faint); text-decoration: none; color: inherit; font-size: 14.5px; }
+.p-go-link .meta { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-left: auto; }
+.p-go-link .arrow { color: var(--signal); transition: transform .5s var(--ease); }
+.p-go-link:hover .arrow { transform: translateX(5px); }
+.p-go-link:hover .p-go { color: var(--signal); }
+.proj-text.blank .arrow { display: none; }
+.proj-text.blank .p-go-link { pointer-events: none; }
 @media (min-width: 901px) { .gallery .filters, .gallery .works { display: none; } }
-@media (max-width: 900px) { .shelf { display: none; } }
-@media (prefers-reduced-motion: reduce) { .peek.swap .peek-cover, .peek.swap .peek-text { animation: none; } }
+@media (max-width: 900px) { .projector { display: none; } }
+@media (prefers-reduced-motion: reduce) { .float, .float-shadow, .grain { animation: none; } .screen.flick { animation: none; } }
+/* 換頁：幕直接放大成作品頁的播放器（支援的瀏覽器才有，其他照常換頁） */
+@view-transition { navigation: auto; }
+.work .stage { view-transition-name: film; }
+::view-transition-group(film) { animation-duration: .6s; animation-timing-function: cubic-bezier(.32, .72, 0, 1); }
+
+/* 開場那一幀飛進轉盤：一個線稿的直式膠片格，沿弧線縮小落到閱讀位置 */
+.courier { position: fixed; left: 0; top: 0; width: 70px; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .25s; will-change: transform; }
+.courier svg { display: block; width: 100%; overflow: visible; }
+.courier rect { fill: var(--plate); stroke: var(--signal); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.courier rect + rect { fill: none; }
+.hero-fig { transition: opacity .4s var(--ease); }
+.hero-fig[style*="--gone: 1"] .fig-stage { opacity: .35; transition: opacity .4s; }

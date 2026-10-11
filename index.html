@@ -60,21 +60,33 @@
       <h2 id="works-h">作品</h2>
       <p class="stat" id="stat"></p>
     </div>
-    <!-- 電腦版：幻燈片轉盤＋預覽板；手機版：下面的卡片列表 -->
-    <div class="shelf reveal" id="shelf">
-      <figure class="fig shelf-fig" id="tray" data-label="幻燈片轉盤：每張幻燈片是一支作品。">
-        <div class="fig-head"><span>Fig 1　片盤</span><span class="fig-read" aria-live="polite"></span></div>
-        <div class="fig-stage"></div>
-        <figcaption>滑過看一看，點一下轉到前面，再點一下進入；也可以按住拖著轉。</figcaption>
-      </figure>
-      <a class="peek" id="peek" href="#">
-        <div class="peek-cover"><img alt="" decoding="async"><span class="peek-blank" aria-hidden="true"></span></div>
-        <div class="peek-text">
+    <!-- 電腦版：幻燈機。轉盤懸在左邊，閱讀位置的那張射出光束，打在右邊的幕上；手機版：下面的卡片列表 -->
+    <div class="projector reveal" id="shelf">
+      <div class="proj-tray">
+        <div class="float">
+          <figure class="fig bare" id="tray" data-label="幻燈片轉盤：每張幻燈片是一支作品。">
+            <div class="fig-head"><span>Fig 1　片盤</span><span class="fig-read" aria-live="polite"></span></div>
+            <div class="fig-stage"></div>
+          </figure>
+        </div>
+        <div class="float-shadow" aria-hidden="true"></div>
+        <p class="proj-hint">滑過看一看，點一下送上幕，再點一下進入；也可以按住拖著轉。</p>
+      </div>
+      <svg class="beam" id="beam" aria-hidden="true"><defs><linearGradient id="beamFill" x1="0" x2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".16"/><stop offset="1" stop-color="var(--signal)" stop-opacity=".03"/></linearGradient></defs><path class="beam-body"/><path class="beam-edge"/></svg>
+      <div class="proj-screen">
+        <a class="screen" id="screen" href="#" aria-label="進入這支片">
+          <video muted playsinline loop preload="none"></video>
+          <img class="ghost" alt="" aria-hidden="true">
+          <span class="grain" aria-hidden="true"></span>
+          <span class="blank-frame" aria-hidden="true"></span>
+        </a>
+        <div class="screen-read" id="screenRead">SLIDE 01 · 00:00 / 00:00 · 24 fps</div>
+        <div class="proj-text" id="peek">
           <div class="card-head"><span class="p-fig"></span><span class="p-tag"></span></div>
           <h3 class="p-title"></h3><div class="en p-en"></div><p class="p-blurb"></p>
-          <div class="card-go"><span class="p-go">看這支片</span><span class="meta p-meta"></span><span class="arrow" aria-hidden="true">→</span></div>
+          <a class="p-go-link" href="#"><span class="p-go">看這支片</span><span class="meta p-meta"></span><span class="arrow" aria-hidden="true">→</span></a>
         </div>
-      </a>
+      </div>
     </div>
     <div class="filters reveal" id="filters" role="toolbar" aria-label="按風格篩選"></div>
     <div class="works" id="grid"></div>
@@ -149,47 +161,111 @@ SITE.load('').then(([WORKS, FP]) => {
   });
   const st0 = new URLSearchParams(location.search).get('style'); if (st0 && styles.includes(st0)) apply(st0);
 
-  // —— 幻燈片轉盤：作品依新到舊排，空位是「製作中」——
-  window.BIN = WORKS.map(w => [w.title, FP[w.id].dur]);
-  const peek = document.getElementById('peek'), $ = c => peek.querySelector(c);
-  let shown = -2;
-  const show = i => {
-    if (i === shown) return; shown = i;
+  // —— 幻燈機：轉盤上一支作品一張幻燈片（新到舊），空位是「製作中」；閱讀位置的那張投在幕上 ——
+  window.BIN = WORKS.map(w => [w.title, FP[w.id].dur, w.thumb]);
+  const shelf = document.getElementById('shelf'), screen = document.getElementById('screen'), vid = screen.querySelector('video'), ghost = screen.querySelector('.ghost');
+  const peek = document.getElementById('peek'), $ = c => peek.querySelector(c), sread = document.getElementById('screenRead'), go = peek.querySelector('.p-go-link');
+  const mmss = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+  let onScreen = -2, slideNo = 0;
+  const text = i => {
     const w = WORKS[i];
-    peek.classList.remove('swap'); void peek.offsetWidth; peek.classList.add('swap');
-    peek.classList.toggle('blank', !w);
+    peek.classList.toggle('blank', !w); screen.classList.toggle('blank', !w);
     if (!w) {
-      peek.removeAttribute('href'); $('img').removeAttribute('src');
+      [screen, go].forEach(a => a.removeAttribute('href'));
       $('.p-fig').textContent = 'Fig —'; $('.p-tag').textContent = '製作中';
       $('.p-title').textContent = '下一支片'; $('.p-en').textContent = 'Coming next';
       $('.p-blurb').textContent = '還在代碼裡，沒被畫出來。這一格先空著，留給下一支片。';
       $('.p-go').textContent = '敬請期待'; $('.p-meta').textContent = '';
       return;
     }
-    peek.href = `works/${w.id}/`; $('img').src = `media/${w.id}.webp`; $('img').alt = `${w.title}的畫面`;
+    [screen, go].forEach(a => a.href = `works/${w.id}/`);
     $('.p-fig').textContent = w.fig; $('.p-tag').textContent = `${w.style}　${w.date}`;
     $('.p-title').textContent = w.title; $('.p-en').textContent = w.en; $('.p-blurb').textContent = w.blurb;
     $('.p-go').textContent = '看這支片'; $('.p-meta').textContent = `${FP[w.id].dur.toFixed(0)} 秒 · ${w.chapters.length} 段`;
   };
-  show(0);
+  const readout = () => { const w = WORKS[onScreen], D = w ? FP[w.id].dur : 0; sread.textContent = `SLIDE ${String(slideNo).padStart(2, '0')} · ${mmss(w ? vid.currentTime : 0)} / ${mmss(D)} · 24 fps`; };
+  vid.addEventListener('timeupdate', readout);
+  // 換片：幕先暗一下，換上新片，再帶一點閃爍亮起來（像真的幻燈機）
+  const project = i => {
+    if (i === onScreen) return;
+    onScreen = i; slideNo = i + 1;
+    screen.classList.remove('flick'); screen.classList.add('dark');
+    setTimeout(() => {
+      const w = WORKS[i];
+      if (w) { vid.poster = `media/${w.id}.webp`; vid.src = `media/${w.id}.mp4`; vid.play().catch(() => {}); } else { vid.pause(); vid.removeAttribute('src'); vid.removeAttribute('poster'); vid.load(); }
+      text(i); readout();
+      screen.classList.remove('dark'); void screen.offsetWidth; screen.classList.add('flick');
+    }, calm ? 0 : 160);
+  };
+  // 滑過別張：幕上淡淡浮出它的影子，像對焦前
+  const preview = i => {
+    const w = WORKS[i];
+    if (i < 0 || i === onScreen || !w) { ghost.classList.remove('on'); return; }
+    ghost.src = `media/${w.id}.webp`; ghost.classList.add('on');
+  };
+  project(0);
   FIG.load('assets/hairline/carousel.js').then(() => {
     let atRead = 0, dragged = false, x0 = 0;
     const idx = t => { const m = /^(\d+) · /.exec(t); return m ? +m[1] - 1 : -1; };
     const tray = FIG.mount(document.getElementById('tray'), 'carousel', { rest: '滑過 · 點選 · 拖動', onRead: t => {
-      const i = idx(t); if (i >= 0) show(i); else if (t === 'rest') show(atRead); // 游標離開：預覽回到轉盤前面那張
-      if (i >= 0 && dragged) atRead = i; // 拖著轉時，停在前面的那張就是選中的
+      const i = idx(t);
+      if (i >= 0 && dragged) { atRead = i; project(i); } // 拖著轉：停在前面的那張直接上幕
+      preview(t === 'rest' ? -1 : i);
     } });
     const st = tray.stage;
     st.addEventListener('pointerdown', e => { dragged = false; x0 = e.clientX; });
     st.addEventListener('pointermove', e => { if (e.buttons && Math.abs(e.clientX - x0) > 6) dragged = true; });
-    // 點一下：轉到前面；已經在前面的那張再點一下：進入
+    // 點一下：轉到閱讀位置並投上幕；已經在幕上的那張再點一下：進入
     st.addEventListener('click', () => {
       if (dragged) return;
       const i = idx(tray.text); if (i < 0) return;
-      if (i === atRead && WORKS[i]) location.href = `works/${WORKS[i].id}/`;
-      else atRead = i;
+      if (i === atRead && WORKS[i]) { enter(); return; }
+      atRead = i; project(i);
     });
+    // 光束：從閱讀位置那張幻燈片（轉盤上亮點的下方）射向幕的左緣，跟著懸浮一起動
+    const beam = document.getElementById('beam'), body = beam.querySelector('.beam-body'), edge = beam.querySelector('.beam-edge');
+    const mark = st.querySelector('svg .dot, svg ellipse.dot') || st.querySelector('svg [class~="dot"]');
+    let live = false;
+    const aim = () => {
+      if (!live) return;
+      const b = shelf.getBoundingClientRect(), s = st.getBoundingClientRect(), m = (st.querySelector('svg [class~="dot"]') || mark).getBoundingClientRect(), r = screen.getBoundingClientRect();
+      const ox = m.left + m.width / 2 - b.left, oy = m.top - b.top + s.height * 0.13, sx = r.left - b.left + 4, t = r.top - b.top + 6, u = r.bottom - b.top - 6;
+      beam.setAttribute('viewBox', `0 0 ${b.width} ${b.height}`);
+      body.setAttribute('d', `M${ox} ${oy - 7}L${sx} ${t}L${sx} ${u}L${ox} ${oy + 7}Z`);
+      edge.setAttribute('d', `M${ox} ${oy - 7}L${sx} ${t}M${ox} ${oy + 7}L${sx} ${u}M${ox} ${oy}L${sx} ${(t + u) / 2}`);
+      requestAnimationFrame(aim);
+    };
+    new IntersectionObserver(es => es.forEach(e => { const was = live; live = e.isIntersecting; if (live && !was) requestAnimationFrame(aim); })).observe(shelf);
+    // 開場捲完「成片」：那一幀離開主圖，沿著弧線飛進轉盤，落在閱讀位置的那張幻燈片上
+    if (!calm && matchMedia('(min-width: 901px)').matches) {
+      const heroFig = document.getElementById('hero'), story = document.getElementById('story');
+      const courier = document.createElement('div'); courier.className = 'courier'; courier.setAttribute('aria-hidden', 'true');
+      courier.innerHTML = '<svg viewBox="0 0 54 96"><rect x="1" y="1" width="52" height="94" rx="5"/><rect x="10" y="6" width="34" height="84" rx="2"/>' +
+        Array.from({ length: 9 }, (_, k) => `<rect x="3" y="${8 + k * 9.6}" width="4" height="5" rx="1"/><rect x="47" y="${8 + k * 9.6}" width="4" height="5" rx="1"/>`).join('') + '</svg>';
+      document.body.appendChild(courier);
+      let landed = false;
+      const fly = () => {
+        const sb = story.getBoundingClientRect(), pb = shelf.getBoundingClientRect(), vh = innerHeight;
+        // 起點：開場區的底邊離開畫面中線；終點：幻燈機走到畫面中間
+        const a = sb.bottom - vh * 0.55, z = pb.top + pb.height / 2 - vh * 0.5, p = Math.min(1, Math.max(0, a / (a - z || 1)));
+        const on = sb.bottom < vh * 0.62 && p < 1;
+        courier.style.opacity = on ? 1 : 0;
+        heroFig.style.setProperty('--gone', on || p >= 1 ? 1 : 0);
+        if (on) {
+          const f = heroFig.querySelector('.fig-stage').getBoundingClientRect(), m = st.querySelector('svg [class~="dot"]').getBoundingClientRect();
+          const x0 = f.left + f.width * 0.42, y0 = Math.max(110, f.top + f.height * 0.5), x1 = m.left + m.width / 2, y1 = m.top + st.getBoundingClientRect().height * 0.13; // 起點跟著主圖，但不讓它跑出畫面上緣
+          const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, cx = (x0 + x1) / 2 - 90, cy = Math.max(90, Math.min(y0, y1) - 70);
+          const x = (1 - e) ** 2 * x0 + 2 * (1 - e) * e * cx + e * e * x1, y = (1 - e) ** 2 * y0 + 2 * (1 - e) * e * cy + e * e * y1;
+          courier.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${1.25 - e * .85}) rotate(${-14 * Math.sin(e * Math.PI)}deg)`;
+        }
+        if (p >= 1 && !landed) { landed = true; screen.classList.remove('flick'); void screen.offsetWidth; screen.classList.add('flick'); }
+        if (p < .98) landed = false;
+      };
+      addEventListener('scroll', () => requestAnimationFrame(fly), { passive: true }); fly();
+    }
   });
+  // 進入作品頁：支援的瀏覽器裡，幕會直接放大成作品頁的播放器
+  const enter = () => { const w = WORKS[onScreen]; if (w) location.href = `works/${w.id}/`; };
 });
 // 信箱不寫明文：存成反轉的 base64，點按鈕才組回並複製
 document.querySelectorAll('button.mail').forEach(b => b.addEventListener('click', async () => {
