@@ -222,14 +222,18 @@ SITE.load('').then(([WORKS, FP]) => {
       preview(t === 'rest' ? -1 : i);
     } });
     const st = tray.stage;
-    st.addEventListener('pointerdown', e => { dragged = false; x0 = e.clientX; });
+    // 不用瀏覽器的 click：按下到放開之間轉盤在轉、幻燈片前後順序重排，瀏覽器會把那次點擊丟掉。
+    // 改成自己記：按下時選中哪一張就立刻送上幕；按下的正是已經在幕上的那張，放開時才進入。
+    let downIdx = -1, wasRead = false;
+    st.addEventListener('pointerdown', e => {
+      dragged = false; x0 = e.clientX;
+      downIdx = idx(tray.text); wasRead = downIdx === atRead; // 轉盤圖自己的 pointerdown 先跑，讀數已經是被按下的那張
+      if (downIdx >= 0 && !wasRead) { atRead = downIdx; project(downIdx); }
+    });
     st.addEventListener('pointermove', e => { if (e.buttons && Math.abs(e.clientX - x0) > 6) dragged = true; });
-    // 點一下：轉到閱讀位置並投上幕；已經在幕上的那張再點一下：進入
-    st.addEventListener('click', () => {
-      if (dragged) return;
-      const i = idx(tray.text); if (i < 0) return;
-      if (i === atRead && WORKS[i]) { enter(); return; }
-      atRead = i; project(i);
+    addEventListener('pointerup', () => {
+      if (downIdx >= 0 && wasRead && !dragged && WORKS[downIdx]) enter();
+      downIdx = -1;
     });
     // 光束：從閱讀位置那張幻燈片的鏡頭射出，向幕發散。三層：外圈的散光、光錐本體、中心最亮的一束；
     // 越靠近鏡頭越亮，越遠越淡；邊緣是糊的；光裡有灰塵在飄；光的顏色跟著幕上的畫面變，幕的四周被照亮
