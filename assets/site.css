@@ -291,11 +291,19 @@ footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12.
 @keyframes shadow { 0%, 100% { transform: scale(1); opacity: .55; } 50% { transform: scale(.94); opacity: .38; } }
 .proj-hint { text-align: center; font-size: 12.5px; color: var(--dim); margin: 34px 0 0; }
 .beam { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
-.beam-body { fill: url(#beamFill); }
-.beam-edge { fill: none; stroke: var(--signal); stroke-width: .75; stroke-opacity: .35; stroke-dasharray: 2 5; }
+.projector { --beam: 255 240 214; }
+.beam .s { stop-color: rgb(var(--beam)); }
+.beam-light { mix-blend-mode: screen; }
+/* 淺色模式：白天的房間看不見光束，所以在幻燈機周圍把「房間」調暗一點，像拉上窗簾的放映室 */
+.projector::before { content: ""; position: absolute; inset: -60px -40px; z-index: 0; pointer-events: none; border-radius: 40px;
+  background: radial-gradient(60% 70% at 58% 50%, rgba(20, 26, 32, .3), rgba(20, 26, 32, .12) 52%, transparent 80%); }
+.beam-edge { fill: none; stroke: var(--signal); stroke-width: .75; stroke-opacity: .22; stroke-dasharray: 2 6; }
+.dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; mix-blend-mode: screen; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .projector::before { display: none; } }
+:root[data-theme="dark"] .projector::before { display: none; }
 .proj-screen { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); column-gap: 26px; align-items: center; }
 .screen { position: relative; display: block; aspect-ratio: 9 / 16; border-radius: 4px; overflow: hidden; background: #0d1013; transform: perspective(900px) rotateY(-9deg); transform-origin: left center;
-  box-shadow: 0 0 0 1px var(--faint), 0 30px 60px -30px rgba(15, 25, 50, .5); transition: filter .16s; }
+  box-shadow: 0 0 0 1px var(--faint), 0 0 70px 4px rgb(var(--beam) / .32), 0 30px 60px -30px rgba(15, 25, 50, .5); transition: filter .16s, box-shadow .6s; }
 .screen video, .screen .ghost { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .screen video { view-transition-name: film; }
 /* 投影的質感：暗角、邊緣微微散開、一層細顆粒 */
